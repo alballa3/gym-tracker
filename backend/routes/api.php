@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WorkoutController;
+use App\Models\exercise;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
