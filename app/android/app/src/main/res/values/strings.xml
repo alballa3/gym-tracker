@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">gym</string>
+    <string name="title_activity_main">gym</string>
+    <string name="package_name">gymrat.com</string>
+    <string name="custom_url_scheme">gymrat.com</string>
+</resources>

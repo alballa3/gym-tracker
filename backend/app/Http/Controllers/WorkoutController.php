@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\workout;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class WorkoutController extends Controller
+{
+    //
+    public function storeTemplate(Request $request)
+    {
+        $vaildtion = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'max:255',
+            'timer' => 'required|integer',
+            'exercises' => 'required',
+        ]);
+        $user = $request->user()->id;
+        $workout = workout::create([
+            'name' => $vaildtion['name'],
+            'description' => $vaildtion["description"],
+            'timer' => $vaildtion["timer"],
+            'exercises' => $vaildtion["exercises"],
+            'user_id' => $user,
+            'is_template' => true,
+        ]);
+
+        return response()->json([
+            "message" => "Workout created successfully",
+            "workout" => $workout
+        ]);
+    }
+    public function storeWorkout(Request $request)
+    {
+        $vaildtion = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'max:255',
+            'timer' => 'required|integer',
+            'exercises' => 'required',
+        ]);
+        $user = $request->user()->id;
+        $workout = workout::create([
+            'name' => $vaildtion['name'],
+            'description' => $vaildtion["description"],
+            'timer' => $vaildtion["timer"],
+            'exercises' => $vaildtion["exercises"],
+            'user_id' => $user,
+            'is_template' => false,
+        ]);
+        return response()->json([
+            "message" => "Workout created successfully",
+            "workout" => $workout
+        ]);
+    }
+}
