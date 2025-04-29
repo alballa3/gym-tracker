@@ -1,4 +1,12 @@
-default:
+stages:
+  - build
+
+build_ios:
+  stage: build
+  image: node:20    # or whatever
   before_script:
-    - cd app # move to correct directory
-    - echo "Running before_script"
+    - cd app            # ← make sure you’re in the folder with package.json
+    - npm ci            # install deps
+  script:
+    - npx cap sync ios  # copy web build into iOS project
+    - fastlane ios build_capacitor
