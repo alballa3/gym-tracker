@@ -1,0 +1,4 @@
+default:
+  before_script:
+    - cd app # move to correct directory
+    - echo "Running before_script"
