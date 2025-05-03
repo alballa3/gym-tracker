@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\aiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WorkoutController;
 use App\Models\exercise;
@@ -17,6 +18,12 @@ Route::controller(AuthController::class)->group(function () {
 Route::controller(WorkoutController::class)->group(function () {
     // Route::get('/workouts', 'index');
     // Route::get('/workouts/{workout}', 'show');
+    Route::get('/template', 'getTemplate')->middleware('auth:sanctum');
+    Route::get('/workouts/{limit}', 'getWorkout')->middleware('auth:sanctum');
     Route::post('/workouts', 'storeWorkout')->middleware('auth:sanctum');
     Route::post('/template', 'storeTemplate')->middleware('auth:sanctum');
+
+});
+Route::controller(aiController::class)->group(function () {
+    Route::post('/ai/generate', 'index')->middleware('auth:sanctum');
 });
