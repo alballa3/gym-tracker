@@ -96,13 +96,39 @@ export default function StepTwo({ userData, updateUserData, onNext, onPrev }: St
               />
               <div className="absolute inset-0 bg-blue-500/5 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
-            <Select value={userData.heightUnit} onValueChange={(value) => updateUserData({ heightUnit: value })}>
-              <SelectTrigger className="w-20 sm:w-28 bg-gray-900/70 border border-blue-500/20 text-white h-[42px] sm:h-[50px]">
-                <SelectValue placeholder="Unit" />
+            <Select 
+              value={userData.heightUnit} 
+              onValueChange={(value) => updateUserData({ heightUnit: value })}
+              defaultValue="cm"
+            >
+              <SelectTrigger 
+                className="w-20 sm:w-28 bg-gray-900/70 border border-blue-500/20 text-white h-[42px] sm:h-[50px] 
+                hover:bg-gray-800/70 hover:border-blue-500/40 hover:shadow-md hover:shadow-blue-500/10
+                focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/60
+                transition-all duration-300 ease-in-out"
+              >
+                <SelectValue placeholder="Unit" className="font-medium" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cm">cm</SelectItem>
-                <SelectItem value="ft">ft</SelectItem>
+              <SelectContent 
+                className="bg-gray-900/95 backdrop-blur-lg border border-blue-500/20 
+                shadow-lg shadow-blue-500/10 animate-in fade-in-0 zoom-in-95"
+              >
+                <SelectItem 
+                  value="cm" 
+                  className="text-white hover:bg-blue-900/30 focus:bg-blue-900/40 
+                  data-[state=checked]:bg-blue-900/50 data-[state=checked]:text-blue-200
+                  transition-colors duration-200"
+                >
+                  cm
+                </SelectItem>
+                <SelectItem 
+                  value="ft" 
+                  className="text-white hover:bg-blue-900/30 focus:bg-blue-900/40
+                  data-[state=checked]:bg-blue-900/50 data-[state=checked]:text-blue-200
+                  transition-colors duration-200"
+                >
+                  ft
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -135,13 +161,39 @@ export default function StepTwo({ userData, updateUserData, onNext, onPrev }: St
               />
               <div className="absolute inset-0 bg-blue-500/5 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
-            <Select value={userData.weightUnit} onValueChange={(value) => updateUserData({ weightUnit: value })}>
-              <SelectTrigger className="w-20 sm:w-28 bg-gray-900/70 border border-blue-500/20 text-white h-[42px] sm:h-[50px]">
-                <SelectValue placeholder="Unit" />
+            <Select 
+              value={userData.weightUnit} 
+              onValueChange={(value) => updateUserData({ weightUnit: value })}
+              defaultValue="kg"
+            >
+              <SelectTrigger 
+                className="w-20 sm:w-28 bg-gray-900/70 border border-blue-500/20 text-white h-[42px] sm:h-[50px] 
+                hover:bg-gray-800/70 hover:border-blue-500/40 hover:shadow-md hover:shadow-blue-500/10
+                focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/60
+                transition-all duration-300 ease-in-out"
+              >
+                <SelectValue placeholder="Unit" className="font-medium" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="kg">kg</SelectItem>
-                <SelectItem value="lbs">lbs</SelectItem>
+              <SelectContent 
+                className="bg-gray-900/95 backdrop-blur-lg border border-blue-500/20 
+                shadow-lg shadow-blue-500/10 animate-in fade-in-0 zoom-in-95"
+              >
+                <SelectItem 
+                  value="kg" 
+                  className="text-white hover:bg-blue-900/30 focus:bg-blue-900/40 
+                  data-[state=checked]:bg-blue-900/50 data-[state=checked]:text-blue-200
+                  transition-colors duration-200"
+                >
+                  kg
+                </SelectItem>
+                <SelectItem 
+                  value="lbs" 
+                  className="text-white hover:bg-blue-900/30 focus:bg-blue-900/40
+                  data-[state=checked]:bg-blue-900/50 data-[state=checked]:text-blue-200
+                  transition-colors duration-200"
+                >
+                  lbs
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>

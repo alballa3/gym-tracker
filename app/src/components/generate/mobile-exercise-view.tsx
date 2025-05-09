@@ -4,8 +4,8 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ExerciseCard } from "@/components/workout/exercise-card"
 import type { Exercise } from "@/types/workout"
+import { ExerciseCard } from "../workout/index/exercise-card"
 
 interface MobileExerciseViewProps {
   filteredExercises: Exercise[]
@@ -18,7 +18,6 @@ export function MobileExerciseView({
   filteredExercises,
   currentExerciseIndex,
   setCurrentExerciseIndex,
-  animatedItems,
 }: MobileExerciseViewProps) {
   const nextExercise = () => {
     if (currentExerciseIndex < filteredExercises.length - 1) {
@@ -86,6 +85,10 @@ export function MobileExerciseView({
             exercise={filteredExercises[currentExerciseIndex]}
             index={currentExerciseIndex}
             isFirst={currentExerciseIndex === 0}
+            onShowDetails={() => { 
+              console.log("Show details");
+            }}
+
             isLast={currentExerciseIndex === filteredExercises.length - 1}
             onMoveUp={() => {}}
             onMoveDown={() => {}}
@@ -97,7 +100,6 @@ export function MobileExerciseView({
             onRemoveSet={() => {}}
             onUpdateSet={() => {}}
             onNameChange={() => {}}
-            onShowDetails={() => {}}
             onToggleSetCompletion={() => {}}
           />
         </motion.div>

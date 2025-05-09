@@ -111,4 +111,85 @@ Text;
       ], 500);
     }
   }
+  public function Chatbot(Request $request){
+    $auth = $request->user()->user_data;
+    // return response()->json($auth);
+    $validtion = $request->validate([
+      "text" => ["required", "string"]
+    ]);
+    $brithDate = $auth["birth_date"] ?? $auth["year"]-$auth["month"]-$auth["day"];
+    $weight = $auth["weight"] . $auth["weight_unit"];
+    $height = $auth["height"] . $auth["height_unit"];
+    $gender = $auth['gender'];
+    $fitnessGoal = $auth['fitness_goal'];
+    $activityLevel = $auth['activity_level'];
+    $promt = <<<Text
+    You are an elite fitness coach that is chat bot and certified personal trainer with extensive experience in creating customized workout programs. Design a safe, effective, and personalized workout routine optimized for the following parameters .
+    User Profile:
+    - Height: $height
+    - Weight: $weight
+    - Age: $brithDate (Note: Prioritize age-appropriate exercises and proper form)
+    - Gender: $gender
+    - Fitness Goal: $fitnessGoal
+    - Activity Level: $activityLevel
+    and here is the question:
+    {$validtion['text']}
+    Return only valid JSON without additional text or formatting.
+    be short that any one can understand and easy to read.
+    format the response like this:
+    {
+      "answer": "string - The answer to the question",
+      "related_questions": [
+        "string - Related question 1",
+        "string - Related question 2",
+        "string - Related question 3",
+        // ...
+      ]
+      }
+    Text;
+    try {
+      $resonse = Http::withHeaders([
+        'Authorization' => 'Bearer ' . env('AI_API_KEY'),
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json',
+      ])->timeout(30)->post('https://api.groq.com/openai/v1/chat/completions', [
+        'model' => 'meta-llama/llama-4-scout-17b-16e-instruct',
+        'messages' => [
+          ['role' => 'user', 'content' => $promt],
+        ],
+        'temperature' => 0.7,
+        'max_tokens' => 2000,
+      ])->throw()->json();
+      $content = $resonse["choices"][0]["message"]["content"];
+
+      // Step 1: Remove ```json or ``` if present
+      $content = preg_replace('/^```json|```$/m', '', $content);
+
+      // Step 2: Normalize line endings (optional, depending on source)
+      $content = str_replace(["\r\n", "\r"], "\n", $content);
+
+      // Step 3: Remove unescaped control characters (common cause of JSON error)
+      $content = preg_replace('/[\x00-\x1F\x7F]/u', '', $content);
+
+      // Decode JSON
+      $data = json_decode($content, true);
+
+      // Check for errors
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        return response()->json([
+          'error' => 'Invalid JSON from AI',
+          'raw_content' => $content,
+          'json_error' => json_last_error_msg()
+        ], 500);
+      }
+
+      return response()->json($data);
+    } catch (\Exception $e) {
+      return response()->json([
+        'error' => 'Failed to generate workout plan',
+        'message' => $e->getMessage()
+      ], 500);
+    }
+  }
+  
 }

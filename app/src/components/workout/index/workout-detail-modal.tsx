@@ -136,7 +136,7 @@ export function WorkoutDetailModal({ workout, isOpen, onClose }: WorkoutDetailMo
                                             <div className="flex items-center gap-1">
                                                 <TrendingUp className="h-3.5 w-3.5 text-blue-300" />
                                                 <p className="font-medium text-white">
-                                                    {new Date(Number(workout.createdAt)).toLocaleDateString()}
+                                                    {new Date(Number(workout.created_at)).toLocaleDateString()}
                                                 </p>
                                             </div>
                                         </div>
@@ -216,35 +216,50 @@ export function WorkoutDetailModal({ workout, isOpen, onClose }: WorkoutDetailMo
                                                     {exercise.sets.map((set, setIdx) => (
                                                         <motion.div
                                                             key={setIdx}
-                                                            className={`grid grid-cols-1 sm:grid-cols-12 gap-2 ${set.isCompleted
-                                                                ? "bg-gradient-to-r from-green-500/10 to-green-400/5 border-green-500/20"
-                                                                : "bg-gray-800/70 border-gray-700/30"
-                                                                } rounded-lg p-2 items-center border hover:border-opacity-50 transition-all`}
-                                                            initial={{ opacity: 0, x: -10 }}
-                                                            animate={{ opacity: 1, x: 0 }}
-                                                            transition={{ duration: 0.2, delay: idx * 0.1 + setIdx * 0.05 }}
+                                                            className={`
+                                                                relative overflow-hidden backdrop-blur-sm
+                                                                grid grid-cols-1 sm:grid-cols-12 gap-2
+                                                                ${set.isCompleted
+                                                                    ? "bg-gradient-to-r from-green-500/15 to-green-400/10 border-green-500/30"
+                                                                    : "bg-gradient-to-r from-gray-800/80 to-gray-900/80 border-gray-700/40"
+                                                                }
+                                                                rounded-xl p-3 items-center border
+                                                                hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/5
+                                                                transition-all duration-300 ease-out
+                                                            `}
+                                                            initial={{ opacity: 0, y: 20 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            transition={{ 
+                                                                type: "spring",
+                                                                stiffness: 100,
+                                                                damping: 15,
+                                                                delay: idx * 0.1 + setIdx * 0.05 
+                                                            }}
                                                         >
-                                                            <div className="sm:hidden grid grid-cols-3 gap-2 mb-2">
-                                                                <div className="text-xs text-gray-400">Set</div>
-                                                                <div className="text-xs text-gray-400">Weight</div>
-                                                                <div className="text-xs text-gray-400">Reps</div>
+                                                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                                                            
+                                                            <div className="sm:hidden grid grid-cols-3 gap-3 mb-2">
+                                                                <div className="text-xs font-medium text-gray-400">Set</div>
+                                                                <div className="text-xs font-medium text-gray-400">Weight</div>
+                                                                <div className="text-xs font-medium text-gray-400">Reps</div>
                                                             </div>
-                                                            <div className="grid grid-cols-3 sm:grid-cols-12 gap-2 items-center">
+                                                            
+                                                            <div className="grid grid-cols-3 sm:grid-cols-12 gap-3 items-center relative z-10">
                                                                 <div className="sm:col-span-1 flex justify-center">
-                                                                    <div className="bg-blue-500/20 text-blue-300 w-5 h-5 rounded-md flex items-center justify-center font-medium text-xs">
+                                                                    <div className="bg-blue-500/30 text-blue-200 w-6 h-6 rounded-lg flex items-center justify-center font-semibold text-xs shadow-inner shadow-blue-400/10">
                                                                         {setIdx + 1}
                                                                     </div>
                                                                 </div>
-                                                                <div className="sm:col-span-3 text-white text-sm">{set.weight} kg</div>
-                                                                <div className="sm:col-span-3 text-white text-sm">{set.reps} reps</div>
+                                                                <div className="sm:col-span-3 text-white text-sm font-medium">{set.weight} kg</div>
+                                                                <div className="sm:col-span-3 text-white text-sm font-medium">{set.reps} reps</div>
                                                                 <div className="col-span-3 sm:col-span-5 flex items-center">
                                                                     {set.isCompleted ? (
-                                                                        <span className="text-xs flex items-center gap-1 text-green-300">
+                                                                        <span className="text-xs flex items-center gap-1.5 text-green-300 bg-green-500/10 px-2 py-1 rounded-full">
                                                                             <CheckCircle className="h-3.5 w-3.5" />
                                                                             Completed
                                                                         </span>
                                                                     ) : (
-                                                                        <span className="text-xs flex items-center gap-1 text-gray-400">
+                                                                        <span className="text-xs flex items-center gap-1.5 text-gray-400 bg-gray-700/30 px-2 py-1 rounded-full">
                                                                             <Circle className="h-3.5 w-3.5" />
                                                                             Not completed
                                                                         </span>
@@ -324,21 +339,7 @@ export function WorkoutDetailModal({ workout, isOpen, onClose }: WorkoutDetailMo
                                             </div>
                                         </motion.div>
 
-                                        {/* JSON Preview */}
-                                        <motion.div
-                                            className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-4 border border-gray-700/30 backdrop-blur-sm"
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3, delay: 0.2 }}
-                                        >
-                                            <h3 className="text-white font-medium mb-3 flex items-center gap-2">
-                                                <BarChart3 className="h-4 w-4 text-blue-300" />
-                                                JSON Data
-                                            </h3>
-                                            <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto text-xs font-mono text-gray-300">
-                                                <pre>{JSON.stringify(workout, null, 2)}</pre>
-                                            </div>
-                                        </motion.div>
+                                      
                                     </TabsContent>
                                 </Tabs>
 

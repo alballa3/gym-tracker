@@ -69,8 +69,7 @@ export function GenerationProgress({
         <div className="relative">
           <Progress
             value={generationProgress}
-            className="h-3 bg-zinc-800/60 rounded-full overflow-hidden"
-            indicatorClassName="bg-gradient-to-r from-violet-500 via-indigo-500 to-blue-500"
+            className="h-3 bg-zinc-800/60 rounded-full overflow-hidden [&>div]:bg-gradient-to-r [&>div]:from-violet-500 [&>div]:via-indigo-500 [&>div]:to-blue-500"
           />
 
           <div className="flex justify-between mt-2 px-1">

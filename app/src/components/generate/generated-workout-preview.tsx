@@ -5,12 +5,15 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Brain, Edit, RotateCcw, Save, Play, Dumbbell, Filter } from "lucide-react"
-import { ExerciseCard } from "@/components/workout/exercise-card"
-import type { GeneratedWorkout } from "@/types/workout"
+import { Brain, Edit, RotateCcw, Save, Dumbbell, Filter } from "lucide-react"
+import type { GeneratedWorkout, MuscleGroup } from "@/types/workout"
 import { WorkoutSummaryCard } from "./workout-summary-card"
 import { ExerciseFilters } from "./exercise-filters"
 import { MobileExerciseView } from "./mobile-exercise-view"
+import { ExerciseCard } from "../workout/index/exercise-card"
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { api } from "@/api"
+import { useNavigate } from "react-router"
 
 interface GeneratedWorkoutPreviewProps {
   workout: GeneratedWorkout
@@ -23,8 +26,44 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
   const [animatedItems, setAnimatedItems] = useState<number[]>([])
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
   const [filteredExercises, setFilteredExercises] = useState(workout.exercises)
+  let nav=useNavigate()
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
   const [showFilters, setShowFilters] = useState(false)
+  const handle = async() => {
+    const client = await api()
+    await client.post("/template", {
+      name: workout.name,
+      description: workout.description,
+      exercises: workout.exercises,
+      timer: parseInt(workout.duration as unknown as string) * 60
+    })
+    nav("/")
+  }
+
+  // Check if screen is mobile
+  const isMobile = useMediaQuery("(max-width: 768px)")
+  
+  // Dynamically adjust scroll area height based on screen size
+  const getScrollHeight = () => {
+    if (typeof window !== "undefined") {
+      const vh = window.innerHeight * 0.01;
+      return isMobile ? `${vh * 50}px` : "450px";
+    }
+    return "450px";
+  }
+  
+  const [scrollHeight, setScrollHeight] = useState("450px")
+  
+  useEffect(() => {
+    setScrollHeight(getScrollHeight())
+    
+    const handleResize = () => {
+      setScrollHeight(getScrollHeight())
+    }
+    
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [isMobile])
 
   useEffect(() => {
     // Animate each exercise card with a staggered delay
@@ -54,7 +93,7 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
   }
 
   // Get unique muscle groups from exercises
-  const muscleGroups = Array.from(new Set(workout.exercises.map((ex) => ex.muscleGroup)))
+  const muscleGroups = Array.from(new Set(workout?.exercises?.map((ex) => ex.muscleGroup) || []))
 
   const container = {
     hidden: { opacity: 0 },
@@ -72,65 +111,65 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      <Card className="p-6 md:p-8 bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 border-zinc-800/40 shadow-xl rounded-2xl overflow-hidden backdrop-blur-sm">
-        <motion.div variants={container} initial="hidden" animate="show">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="w-full max-w-full">
+      <Card className="p-4 sm:p-6 md:p-8 bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 border-zinc-800/40 shadow-xl rounded-xl sm:rounded-2xl overflow-hidden backdrop-blur-sm">
+        <motion.div variants={container} initial="hidden" animate="show" className="w-full">
           <motion.div
             variants={item}
-            className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6"
+            className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 mb-4 md:mb-6"
           >
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-blue-500 to-violet-600 p-2.5 rounded-lg shadow-lg shadow-blue-900/20">
-                <Brain className="h-5 w-5 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-gradient-to-br from-blue-500 to-violet-600 p-2 sm:p-2.5 rounded-lg shadow-lg shadow-blue-900/20">
+                <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
-              <h2 className="text-xl font-semibold bg-gradient-to-r from-blue-300 to-violet-300 bg-clip-text text-transparent">
+              <h2 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-blue-300 to-violet-300 bg-clip-text text-transparent">
                 AI Generated Workout
               </h2>
             </div>
-            <div className="flex gap-2 w-full md:w-auto">
+            <div className="flex gap-2 w-full md:w-auto mt-3 md:mt-0">
               <Button
-                size="sm"
+                size={isMobile ? "sm" : "default"}
                 variant="outline"
                 onClick={onBack}
-                className="h-10 px-4 border-zinc-700/50 bg-zinc-800/40 hover:bg-zinc-800/80 hover:text-violet-300 transition-all duration-200"
+                className="h-9 sm:h-10 px-3 sm:px-4 border-zinc-700/50 bg-zinc-800/40 hover:bg-zinc-800/80 hover:text-violet-300 transition-all duration-200 text-xs sm:text-sm"
               >
-                <Edit className="h-4 w-4 mr-1.5 text-violet-400" />
+                <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5 text-violet-400" />
                 Edit
               </Button>
               <Button
-                size="sm"
+                size={isMobile ? "sm" : "default"}
                 variant="outline"
                 onClick={onRegenerate}
-                className="h-10 px-4 border-zinc-700/50 bg-zinc-800/40 hover:bg-zinc-800/80 hover:text-blue-300 transition-all duration-200"
+                className="h-9 sm:h-10 px-3 sm:px-4 border-zinc-700/50 bg-zinc-800/40 hover:bg-zinc-800/80 hover:text-blue-300 transition-all duration-200 text-xs sm:text-sm"
               >
-                <RotateCcw className="h-4 w-4 mr-1.5 text-blue-400" />
+                <RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5 text-blue-400" />
                 Regenerate
               </Button>
             </div>
           </motion.div>
 
-          <motion.div variants={item}>
+          <motion.div variants={item} className="w-full">
             <WorkoutSummaryCard workout={workout} />
           </motion.div>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
             <motion.div
               variants={item}
-              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3"
             >
-              <h3 className="text-lg font-medium text-white flex items-center gap-2">
-                <Dumbbell className="h-5 w-5 text-violet-400" />
+              <h3 className="text-base sm:text-lg font-medium text-white flex items-center gap-1.5 sm:gap-2">
+                <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-violet-400" />
                 Exercises
               </h3>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mt-2 sm:mt-0 w-full sm:w-auto justify-between sm:justify-end">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="h-9 px-3 border-zinc-700/50 bg-zinc-800/40 hover:bg-zinc-800/80 text-zinc-300 hover:text-zinc-100 transition-all duration-200 flex items-center gap-1.5"
+                  className="h-8 sm:h-9 px-2 sm:px-3 border-zinc-700/50 bg-zinc-800/40 hover:bg-zinc-800/80 text-zinc-300 hover:text-zinc-100 transition-all duration-200 flex items-center gap-1 sm:gap-1.5 text-xs"
                 >
-                  <Filter className="h-3.5 w-3.5" />
+                  <Filter className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   {showFilters ? "Hide Filters" : "Show Filters"}
                 </Button>
 
@@ -148,9 +187,10 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
+                className="overflow-x-auto pb-2"
               >
                 <ExerciseFilters
-                  muscleGroups={muscleGroups}
+                  muscleGroups={muscleGroups.filter((group): group is MuscleGroup => group !== undefined)}
                   activeFilter={activeFilter}
                   onFilterChange={handleFilterChange}
                 />
@@ -169,8 +209,8 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
 
             {/* Desktop view - scrollable list */}
             <motion.div variants={item} className="hidden md:block">
-              <ScrollArea className="h-[450px] pr-4">
-                <div className="space-y-4">
+              <ScrollArea className={`h-[${scrollHeight}] pr-4`} style={{ height: scrollHeight }}>
+                <div className="space-y-3 sm:space-y-4">
                   {filteredExercises.map((exercise, index) => (
                     <motion.div
                       key={exercise.id}
@@ -206,16 +246,32 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
             </motion.div>
           </div>
 
-          <motion.div variants={item} className="flex flex-col sm:flex-row gap-3 mt-8">
-            <Button className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 border-none h-12 rounded-xl shadow-lg shadow-emerald-900/20 transition-all duration-300">
-              <Save className="mr-2 h-5 w-5" />
+          <motion.div 
+            variants={item} 
+            className="flex flex-col sm:flex-row gap-3 mt-8"
+          >
+            <Button 
+              className="
+                flex-1 relative group overflow-hidden
+                bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500
+                hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600
+                border-none h-12 sm:h-14 
+                rounded-xl sm:rounded-2xl
+                shadow-lg shadow-emerald-900/30
+                transition-all duration-500 ease-out
+                text-sm sm:text-base font-medium
+                before:absolute before:inset-0
+                before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent
+                before:translate-x-[-200%] before:transition-transform before:duration-700
+                hover:before:translate-x-[200%]
+              "
+              onClick={handle}
+            >
+              <Save className="mr-2.5 h-5 w-5 sm:h-6 sm:w-6 animate-pulse group-hover:animate-none" />
               Save as Template
             </Button>
-            <Button className="flex-1 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 border-none h-12 rounded-xl shadow-lg shadow-violet-900/20 transition-all duration-300">
-              <Play className="mr-2 h-5 w-5" />
-              Start Workout
-            </Button>
           </motion.div>
+
         </motion.div>
       </Card>
     </motion.div>

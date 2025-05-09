@@ -1,6 +1,6 @@
 "use client"
 
-import { Dumbbell, Clock, CheckCircle, Info } from "lucide-react"
+import { Dumbbell, Clock, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -74,10 +74,7 @@ export function WorkoutTemplateCard({
                             <Clock className="h-3.5 w-3.5 text-blue-300" />
                             <span className="text-white">{Math.floor((template.timer as number || 0) / 60)} min</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <CheckCircle className="h-3.5 w-3.5 text-blue-300" />
-                            <span className="text-white">{completionPercentage}% complete</span>
-                        </div>
+                    
                     </div>
 
                     {/* Progress Bar */}

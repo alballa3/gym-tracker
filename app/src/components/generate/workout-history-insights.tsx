@@ -80,8 +80,7 @@ export function WorkoutHistoryInsights() {
             </div>
             <Progress
               value={item.trend === "up" ? 70 : item.trend === "down" ? 30 : 50}
-              className="h-1.5"
-              indicatorClassName={
+              className={
                 item.trend === "up" ? "bg-green-500" : item.trend === "down" ? "bg-red-500" : "bg-yellow-500"
               }
             />

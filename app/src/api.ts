@@ -1,7 +1,7 @@
 
 import axios from "axios";
 import { get_token } from "./capacitor/auth";
-export const api_url = "http://127.0.0.1:8000/api"
+export const api_url = "http://backend.test/api"
 
 export const api = async () => {
     let token: null | string = null

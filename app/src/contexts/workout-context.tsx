@@ -46,7 +46,7 @@ const initialState: WorkoutFormState = {
   saveAsTemplate: true,
   timer: Date.now(),
   exercises: [],
-  createdAt: Date.now().toString(),
+  created_at: Date.now().toString(),
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined)

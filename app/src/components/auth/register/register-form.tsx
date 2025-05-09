@@ -59,9 +59,9 @@ export default function RegisterForm() {
   const [userData, setUserData] = useState({
     // Physical info
     height: "",
-    heightUnit: "",
+    heightUnit: "cm",
     weight: "",
-    weightUnit: "",
+    weightUnit: "kg",
 
     // Fitness profile
     day: "",

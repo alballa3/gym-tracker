@@ -51,4 +51,7 @@ class User extends Authenticatable
     public function Workouts(){
         return $this->hasMany(workout::class);
     }
+    public function profile(){
+        return $this->hasOne(profile::class);
+    }
 }

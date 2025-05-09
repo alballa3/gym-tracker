@@ -1,14 +1,15 @@
 "use client"
 
-import { Home, Dumbbell, TrendingUp, Settings } from "lucide-react"
+import { Home, Dumbbell, Settings } from "lucide-react"
 import { motion } from "framer-motion"
+import { useNavigate } from "react-router"
 
 interface MobileNavigationProps {
     activeTab: string
-    setActiveTab: (tab: string) => void
 }
 
-export function MobileNavigation({ activeTab, setActiveTab }: MobileNavigationProps) {
+export function MobileNavigation({ activeTab }: MobileNavigationProps) {
+    let nav=useNavigate()
     return (
         <motion.nav
             className="fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur-md border-t border-gray-800/50 px-6 py-2 shadow-lg z-10"
@@ -21,25 +22,25 @@ export function MobileNavigation({ activeTab, setActiveTab }: MobileNavigationPr
                     icon={<Home className="h-5 w-5" />}
                     label="Home"
                     isActive={activeTab === "home"}
-                    onClick={() => setActiveTab("home")}
+                    onClick={() => nav("/")}
                 />
                 <NavItem
                     icon={<Dumbbell className="h-5 w-5" />}
                     label="Workouts"
                     isActive={activeTab === "workouts"}
-                    onClick={() => setActiveTab("workouts")}
+                    onClick={() => nav('workouts')}
                 />
-                <NavItem
+                {/* <NavItem
                     icon={<TrendingUp className="h-5 w-5" />}
                     label="Progress"
                     isActive={activeTab === "progress"}
                     onClick={() => setActiveTab("progress")}
-                />
+                /> */}
                 <NavItem
                     icon={<Settings className="h-5 w-5" />}
-                    label="Settings"
-                    isActive={activeTab === "settings"}
-                    onClick={() => setActiveTab("settings")}
+                    label="Profile"
+                    isActive={activeTab === "profile"}
+                    onClick={() => nav("/profile")}
                 />
             </div>
         </motion.nav>

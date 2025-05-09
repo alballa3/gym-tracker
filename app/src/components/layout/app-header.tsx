@@ -17,7 +17,7 @@ export function AppHeader() {
                     <Dumbbell className="h-5 w-5 text-blue-300" />
                 </div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-blue-400 bg-clip-text text-transparent">
-                    FitTrack
+                    GymRat Tracker
                 </h1>
             </div>
             <Button

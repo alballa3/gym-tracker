@@ -12,9 +12,10 @@ import { ExerciseLibrary } from "@/components/workout/create/exercise-library"
 import { ExerciseDetailModal } from "@/components/workout/create/exercise-detail-modal"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Exercise } from "@/types/exercise"
-import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { useNavigate } from "react-router"
 import { api } from "@/api"
+import { storeTemplate } from "@/capacitor/store"
+import { toast } from "sonner"
 
 function WorkoutForm() {
   const {
@@ -31,30 +32,19 @@ function WorkoutForm() {
 
 
   const handleSave = async () => {
+    // Store It offline
+    storeTemplate(state)
 
     try {
-      await Filesystem.stat({
-        path: 'workout',
-        directory: Directory.Data,
-      })
+      // Store It For With our api
+      let client = await api()
+      let respose = await client.post("/template", state)
+      console.log(respose)
     } catch (error) {
-      await Filesystem.mkdir({
-        path: 'workout',
-        directory: Directory.Data,
-        recursive: true,
-      });
+      toast.error("Failed to save workout,with our api but it stored locally.")
+    } finally {
+      nav("/")
     }
-
-    await Filesystem.writeFile({
-      path: `workout/${state.id}.json`,
-      data: JSON.stringify(state),
-      directory: Directory.Data,
-      encoding: Encoding.UTF8
-    });
-    let client = await api()
-    let respose = await client.post("/template", state)
-    console.log(respose)
-  nav("/")
     console.log("Saving workout:", state);
   };
 

@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react"
 import { AppHeader } from "@/components/layout/app-header"
-import { MobileNavigation } from "@/components/layout/mobile-navigation"
 import { cn } from "@/lib/utils"
 import { WorkoutGeneratorForm } from "@/components/generate/workout-generator-form"
 import { GeneratedWorkoutPreview } from "@/components/generate/generated-workout-preview"
@@ -46,7 +45,7 @@ export default function GenerateWorkoutPage() {
   const generateWorkout = useCallback(
     async (
       description: string,
-      duration: number,
+      _duration: number,
       selectedEquipment: Equipment[],
       selectedMuscleGroups: MuscleGroup[],
     ) => {
@@ -56,33 +55,26 @@ export default function GenerateWorkoutPage() {
       setGenerationError(null)
 
       try {
-        // Simulate AI processing with progress updates
-        await new Promise((resolve) => setTimeout(resolve, 800))
+        // // Simulate AI processing with progress updates
         setGenerationProgress(15)
         setGenerationStep("Selecting optimal exercises...")
 
-        await new Promise((resolve) => setTimeout(resolve, 1000))
         setGenerationProgress(35)
         setGenerationStep("Calculating sets and reps...")
 
-        await new Promise((resolve) => setTimeout(resolve, 800))
         setGenerationProgress(60)
         setGenerationStep("Optimizing workout structure...")
 
-        await new Promise((resolve) => setTimeout(resolve, 1200))
         setGenerationProgress(85)
-        setGenerationStep("Finalizing your personalized plan...")
 
-        await new Promise((resolve) => setTimeout(resolve, 600))
         setGenerationProgress(100)
         setGenerationStep("Workout generated successfully!")
 
         // Generate workout based on inputs
-        const workout = generateWorkoutBasedOnInputs(description, duration, selectedEquipment, selectedMuscleGroups)
-        setGeneratedWorkout(workout)
+        const workout =await generateWorkoutBasedOnInputs(description,  selectedEquipment, selectedMuscleGroups)
+        setGeneratedWorkout(workout as unknown as GeneratedWorkout)
 
         // Wait for progress bar to complete
-        await new Promise((resolve) => setTimeout(resolve, 500))
 
         // Show continue button
         setShowContinueButton(true)
@@ -96,18 +88,21 @@ export default function GenerateWorkoutPage() {
   )
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#0a0a18] via-[#141428] to-[#0a0a18] text-zinc-100">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#0a0a18] via-[#141428] to-[#0a0a18] text-zinc-100 overflow-x-hidden">
       {/* Animated background elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-0 left-[10%] w-[500px] h-[500px] bg-purple-600/10 rounded-full filter blur-[120px] animate-pulse-slow"></div>
-        <div className="absolute bottom-0 right-[20%] w-[600px] h-[600px] bg-blue-600/10 rounded-full filter blur-[120px] animate-pulse-slow animation-delay-1000"></div>
-        <div className="absolute top-[30%] right-[5%] w-[400px] h-[400px] bg-cyan-600/10 rounded-full filter blur-[120px] animate-pulse-slow animation-delay-2000"></div>
-      </div>
 
       <AppHeader />
 
       <main className="flex-1 p-4 md:p-6 pb-20 relative z-10">
-        <div className="mx-auto max-w-5xl">
+        {/* Animated background elements - positioned to cover the entire page */}
+        <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-[10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full filter blur-[120px] animate-pulse-slow"></div>
+          <div className="absolute bottom-0 right-[20%] w-[700px] h-[700px] bg-blue-600/10 rounded-full filter blur-[120px] animate-pulse-slow animation-delay-1000"></div>
+          <div className="absolute top-[30%] right-[5%] w-[500px] h-[500px] bg-cyan-600/10 rounded-full filter blur-[120px] animate-pulse-slow animation-delay-2000"></div>
+          <div className="absolute bottom-[10%] left-[5%] w-[500px] h-[500px] bg-violet-600/10 rounded-full filter blur-[120px] animate-pulse-slow animation-delay-3000"></div>
+        </div>
+
+        <div className="mx-auto max-w-5xl relative z-10">
           <div className="mb-6 md:mb-8 flex flex-col gap-2">
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
               AI Workout Generator
@@ -191,7 +186,7 @@ export default function GenerateWorkoutPage() {
         </div>
       </main>
 
-      <MobileNavigation />
+      
     </div>
   )
 }

@@ -3,7 +3,6 @@
 import { motion } from "framer-motion"
 import { Dumbbell, Heart, LineChart, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import image2 from "@/assets/Tracking Progress at the Gym.png"
 interface StepOneProps {
   onNext: () => void
 }
@@ -77,12 +76,12 @@ export default function StepOne({ onNext }: StepOneProps) {
         </motion.div>
 
         <motion.h1
-          className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200"
+          className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 bg-clip-text bg-gradient-to-r from-white to-blue-200"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          Welcome to FitTrack Pro
+          Welcome to GymRat Tracker
         </motion.h1>
 
         <motion.p

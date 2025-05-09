@@ -84,7 +84,7 @@ export function ExerciseSetRow({
             <Input
               type="number"
               inputMode="decimal"
-              value={weight.toString() == '1' ? '' : weight}
+              value={weight.toString() == '0' ? '' : weight}
               onChange={(e) => {
                 if (e.target.value === '') {
                   onWeightChange(0);
@@ -133,7 +133,7 @@ export function ExerciseSetRow({
             <Input
               type="number"
               inputMode="numeric"
-              value={reps.toString() == '1' ? '' : reps}
+              value={reps.toString() == '0' ? '' : reps}
               onChange={(e) => onRepsChange(Number(e.target.value))}
               onFocus={() => setHasFocus(true)}
               onBlur={() => setHasFocus(false)}

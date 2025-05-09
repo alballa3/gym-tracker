@@ -6,38 +6,27 @@ import { WorkoutTemplatesGrid } from "@/components/workout/index/workout-templat
 import { NewWorkoutCard } from "@/components/workout/index/new-workout-card"
 import { MobileNavigation } from "@/components/layout/mobile-navigation"
 import { LastWorkoutSection } from "@/components/workout/index/last-workout-section"
-import { Directory, Encoding, Filesystem } from "@capacitor/filesystem"
 import { WorkoutFormState } from "@/types/workout"
+import { api } from "@/api"
 
 export default function HomePage() {
-    const [activeTab, setActiveTab] = useState("home")
     const [templates, setTemplates] = useState<WorkoutFormState[]>([])
- 
+    // const [lastWorkout, setLastWorkout] = useState<WorkoutFormState | null>(null)
     useEffect(() => {
         const handle = async () => {
-            const files = await Filesystem.readdir({
-                path: "workout",
-                directory: Directory.Data,
-
-            })
-            const workouts: WorkoutFormState[] = await Promise.all(
-                files.files.map(async file => {
-                    try {
-                        const { data } = await Filesystem.readFile({
-                            path: `workout/${file.name}`,
-                            directory: Directory.Data,
-                            encoding: Encoding.UTF8
-                        });
-                        return JSON.parse(data as string);                     // guarded parse :contentReference[oaicite:10]{index=10}
-                    } catch (err) {
-                        console.error('Skipping invalid JSON in', file.name, err);
-                        return null;
-                    }
-                })
-            );
-
-            const validWorkouts = workouts.filter(w => w !== null);
-            setTemplates(validWorkouts);
+      
+            const client = await api()
+         //    const workouts = await client.get(`/workouts/1`)
+            const templates = await client.get("/template")
+            setTemplates(templates.data)
+        //    try {
+        //    } catch (error) {
+            
+        //    }
+            // setLastWorkout(workouts.data) // Assuming the last workout is the first elemen
+            // setTemplates(templates.data)
+            // const validWorkouts = workouts.filter(w => w !== null);
+            // setTemplates(validWorkouts);
         }
         handle()
     }, [])
@@ -49,7 +38,6 @@ export default function HomePage() {
         exerciseCount: 8,
         volume: "4,500 kg",
     }
-
     // For demo purposes, you can set this to an empty array to show the empty state
 
     return (
@@ -101,7 +89,7 @@ export default function HomePage() {
             </main>
 
             {/* Mobile Navigation */}
-            <MobileNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+            <MobileNavigation activeTab={'home'}  />
         </div>
     )
 }

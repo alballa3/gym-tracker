@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 interface ExerciseFiltersProps {
-  muscleGroups: string[]
+  muscleGroups: string[] | null
   activeFilter: string | null
   onFilterChange: (filter: string | null) => void
 }
@@ -31,7 +31,7 @@ export function ExerciseFilters({ muscleGroups, activeFilter, onFilterChange }: 
         </Badge>
       </motion.div>
 
-      {muscleGroups.map((group, index) => (
+      {muscleGroups?.map((group, index) => (
         <motion.div
           key={group}
           initial={{ opacity: 0, scale: 0.9 }}

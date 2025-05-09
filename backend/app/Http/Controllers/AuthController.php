@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\profile;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,9 @@ class AuthController extends Controller
             'email' => $vaildtion['email'],
             'password' => $vaildtion['password'],
             'user_data' => $request->get('user_data')
+        ]);
+         profile::create([
+            'user_id' => $user->id,
         ]);
         $token = $user->createToken('api-token')->plainTextToken;
         return response()->json([

@@ -122,7 +122,7 @@ export default function SuccessAnimation({ userName, onContinue }: SuccessAnimat
                 Welcome, {userName || "Friend"}!
               </h2>
               <p className="text-gray-300 mb-6 max-w-md">
-                Your account has been successfully created. Get ready to start your fitness journey with FitTrack Pro!
+                Your account has been successfully created. Get ready to start your fitness journey with GymRat Tracker !
               </p>
             </motion.div>
 
