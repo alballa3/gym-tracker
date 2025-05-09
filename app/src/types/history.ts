@@ -2,18 +2,14 @@ export interface HistoryWorkout {
   id: number
   name: string
   date: string
-  duration: number // in seconds
-  intensity: "Low" | "Medium" | "High"
+  created_at: string
+  timer: number // in seconds
   exercises: HistoryExercise[]
-  completedSets: number
-  totalSets: number
-  totalVolume: number // in kg
-  caloriesBurned: number
-  averageRestTime: number // in seconds
-  notes?: string
-  personalRecords?: PersonalRecord[]
-  volumeVsAverage?: number // percentage compared to user average
-  intensityVsAverage?: number // percentage compared to user average
+  completedSets?: number
+  totalSets?: number
+  totalVolume?: number // in kg
+  
+  description?: string
 }
 
 export interface HistoryExercise {
@@ -22,9 +18,6 @@ export interface HistoryExercise {
   muscleGroup: string
   sets: HistorySet[]
   totalVolume: number // in kg
-  notes?: string
-  personalRecord?: boolean
-  equipment?: string[]
 }
 
 export interface HistorySet {
@@ -34,9 +27,3 @@ export interface HistorySet {
   isCompleted: boolean
 }
 
-export interface PersonalRecord {
-  exercise: string
-  value: number
-  type: "weight" | "reps"
-  date: string
-}

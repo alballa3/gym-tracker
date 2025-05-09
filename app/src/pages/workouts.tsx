@@ -10,10 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { WorkoutDetailView } from "@/components/history/workout-detail-view"
-import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { mockWorkoutHistory } from "@/lib/mock-data"
 import type { HistoryWorkout } from "@/types/history"
+import moment from "moment";
 import {
   Search,
   Grid3x3Icon as Grid3,
@@ -23,7 +22,6 @@ import {
   Clock,
   BarChart3,
   ChevronRight,
-  Trophy,
   Filter,
   ArrowUpDown,
   X,
@@ -42,7 +40,7 @@ export default function AllWorkoutsPage() {
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list" | "calendar">("grid")
-  const [sortBy, setSortBy] = useState<"date" | "name" | "duration" | "volume">("date")
+  const [sortBy, setSortBy] = useState<"date" | "name" | "timer" | "volume">("date")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
   const [filterIntensity, setFilterIntensity] = useState<"All" | "Low" | "Medium" | "High">("All")
   const [isLoading, setIsLoading] = useState(true)
@@ -51,7 +49,7 @@ export default function AllWorkoutsPage() {
 
   // Stats
   const [totalWorkouts, setTotalWorkouts] = useState(0)
-  const [totalDuration, setTotalDuration] = useState(0)
+  const [totaltimer, setTotaltimer] = useState(0)
   const [totalVolume, setTotalVolume] = useState(0)
 
   // Load workout data
@@ -59,20 +57,23 @@ export default function AllWorkoutsPage() {
     const timer = setTimeout(async() => {
       const client = await api()
       const res = await client.get("/workouts")
-      console.log(res)
-      // setWorkouts(res.data)
-      // setFilteredWorkouts(res.data)
-      setWorkouts(mockWorkoutHistory)
-      setFilteredWorkouts(mockWorkoutHistory)
+      let workoutData = res.data
+      setWorkouts(workoutData)
 
+      
+      console.log(workouts)
+      // setFilteredWorkouts(res.data)
+      // setWorkouts(mockWorkoutHistory)
+      // setFilteredWorkouts(mockWorkoutHistory)
+      
       // Calculate stats
-      const total = mockWorkoutHistory.length
-      const duration = mockWorkoutHistory.reduce((acc, workout) => acc + workout.duration, 0)
-      const volume = mockWorkoutHistory.reduce((acc, workout) => acc + workout.totalVolume, 0)
+      const total = workouts.length
+      const timer = workouts.reduce((acc, workout) => acc + workout.timer, 0)
+      // const volume = workouts.reduce((acc, workout) => acc +, 0)
 
       setTotalWorkouts(total)
-      setTotalDuration(duration)
-      setTotalVolume(volume)
+      setTotaltimer(timer)
+      setTotalVolume(0)
 
       setIsLoading(false)
     }, 800)
@@ -92,10 +93,7 @@ export default function AllWorkoutsPage() {
   useEffect(() => {
     let result = [...workouts]
 
-    // Apply intensity filter
-    if (filterIntensity !== "All") {
-      result = result.filter((workout) => workout.intensity === filterIntensity)
-    }
+    
 
     // Apply search filter
     if (searchQuery) {
@@ -118,12 +116,10 @@ export default function AllWorkoutsPage() {
         case "name":
           comparison = a.name.localeCompare(b.name)
           break
-        case "duration":
-          comparison = a.duration - b.duration
+        case "timer":
+          comparison = a.timer - b.timer
           break
-        case "volume":
-          comparison = a.totalVolume - b.totalVolume
-          break
+       
       }
 
       return sortOrder === "asc" ? comparison : -comparison
@@ -138,24 +134,15 @@ export default function AllWorkoutsPage() {
     setIsDetailOpen(true)
   }
 
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(date)
-  }
 
-  // Format duration from seconds to minutes
-  const formatDuration = (seconds: number) => {
+  // Format timer from seconds to minutes
+  const formattimer = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     return `${minutes} min`
   }
 
-  // Format total duration for stats
-  const formatTotalDuration = (seconds: number) => {
+  // Format total timer for stats
+  const formatTotaltimer = (seconds: number) => {
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
     return `${hours}h ${minutes}m`
@@ -169,33 +156,8 @@ export default function AllWorkoutsPage() {
     setSortOrder("desc")
   }
 
-  // Get intensity color
-  const getIntensityColor = (intensity: string) => {
-    switch (intensity) {
-      case "High":
-        return "from-red-500 to-orange-500"
-      case "Medium":
-        return "from-amber-500 to-yellow-500"
-      case "Low":
-        return "from-green-500 to-emerald-500"
-      default:
-        return "from-blue-500 to-cyan-500"
-    }
-  }
 
-  // Get intensity badge style
-  const getIntensityBadgeStyle = (intensity: string) => {
-    switch (intensity) {
-      case "High":
-        return "bg-red-500/10 text-red-400 border border-red-500/20"
-      case "Medium":
-        return "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-      case "Low":
-        return "bg-green-500/10 text-green-400 border border-green-500/20"
-      default:
-        return "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-    }
-  }
+
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col overflow-x-hidden">
@@ -226,7 +188,7 @@ export default function AllWorkoutsPage() {
           {/* Stats cards */}
           {!isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 animate-fadeIn animation-delay-150">
-              <div className="bg-gradient-to-br from-gray-900/90 to-gray-900/70 border border-gray-800/50 rounded-xl p-4 flex items-center group hover:border-violet-900/30 transition-all duration-300 hover:shadow-lg hover:shadow-violet-900/5">
+              <div className="bg-gradient-to-br from-gray-900/90 to-gray-900/70 border border-gray-800/50 rounded-xl p-4 flex items-center group hover:border-violet-900/30 transition-all timer-300 hover:shadow-lg hover:shadow-violet-900/5">
                 <div className="h-12 w-12 rounded-full bg-violet-500/10 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                   <Activity className="h-6 w-6 text-violet-400" />
                 </div>
@@ -236,17 +198,17 @@ export default function AllWorkoutsPage() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-gray-900/90 to-gray-900/70 border border-gray-800/50 rounded-xl p-4 flex items-center group hover:border-blue-900/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/5">
+              <div className="bg-gradient-to-br from-gray-900/90 to-gray-900/70 border border-gray-800/50 rounded-xl p-4 flex items-center group hover:border-blue-900/30 transition-all timer-300 hover:shadow-lg hover:shadow-blue-900/5">
                 <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                   <Clock className="h-6 w-6 text-blue-400" />
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm">Total Time</p>
-                  <p className="text-2xl font-bold text-gray-100">{formatTotalDuration(totalDuration)}</p>
+                  <p className="text-2xl font-bold text-gray-100">{formatTotaltimer(totaltimer)}</p>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-gray-900/90 to-gray-900/70 border border-gray-800/50 rounded-xl p-4 flex items-center group hover:border-cyan-900/30 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-900/5">
+              <div className="bg-gradient-to-br from-gray-900/90 to-gray-900/70 border border-gray-800/50 rounded-xl p-4 flex items-center group hover:border-cyan-900/30 transition-all timer-300 hover:shadow-lg hover:shadow-cyan-900/5">
                 <div className="h-12 w-12 rounded-full bg-cyan-500/10 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                   <BarChart3 className="h-6 w-6 text-cyan-400" />
                 </div>
@@ -310,7 +272,7 @@ export default function AllWorkoutsPage() {
                   value={`${sortBy}-${sortOrder}`}
                   onValueChange={(value) => {
                     const [newSortBy, newSortOrder] = value.split("-") as [
-                      "date" | "name" | "duration" | "volume",
+                      "date" | "name" | "timer" | "volume",
                       "asc" | "desc",
                     ]
                     setSortBy(newSortBy)
@@ -326,8 +288,8 @@ export default function AllWorkoutsPage() {
                     <SelectItem value="date-asc">Oldest first</SelectItem>
                     <SelectItem value="name-asc">Name (A-Z)</SelectItem>
                     <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                    <SelectItem value="duration-desc">Longest first</SelectItem>
-                    <SelectItem value="duration-asc">Shortest first</SelectItem>
+                    <SelectItem value="timer-desc">Longest first</SelectItem>
+                    <SelectItem value="timer-asc">Shortest first</SelectItem>
                     <SelectItem value="volume-desc">Highest volume</SelectItem>
                     <SelectItem value="volume-asc">Lowest volume</SelectItem>
                   </SelectContent>
@@ -428,22 +390,22 @@ export default function AllWorkoutsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredWorkouts.map((workout, index) => {
                     // Calculate completion percentage
-                    const completionPercentage = Math.round((workout.completedSets / workout.totalSets) * 100)
+                    {console.log(workout)}
+                    const completionPercentage = Math.round(((workout.completedSets ?? 0) / (workout.totalSets ?? 1)) * 100)
 
                     // Determine if this workout has any personal records
-                    const hasPersonalRecord = workout.personalRecords && workout.personalRecords.length > 0
 
                     return (
                       <div
                         key={workout.id}
                         className="bg-gradient-to-br from-gray-900/90 to-gray-950/95 border border-gray-800/50 rounded-xl overflow-hidden 
-                        hover:border-cyan-900/50 transition-all duration-300 cursor-pointer group hover:shadow-cyan-900/5 hover:shadow-2xl
+                        hover:border-cyan-900/50 transition-all timer-300 cursor-pointer group hover:shadow-cyan-900/5 hover:shadow-2xl
                         animate-fadeIn relative"
                         style={{ animationDelay: `${index * 50}ms` }}
                         onClick={() => handleWorkoutClick(workout)}
                       >
                         <div
-                          className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${getIntensityColor(workout.intensity)} opacity-80`}
+                          className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r  opacity-80`}
                         ></div>
 
                         <div className="p-5">
@@ -451,26 +413,25 @@ export default function AllWorkoutsPage() {
                             <div>
                               <h3 className="font-bold text-lg text-gray-100 group-hover:text-cyan-400 transition-colors flex items-center gap-2">
                                 {workout.name}
-                                {hasPersonalRecord && <Trophy className="h-4 w-4 text-amber-400" />}
                               </h3>
                               <div className="flex items-center text-gray-400 text-sm mt-1">
                                 <Calendar className="h-3.5 w-3.5 mr-1.5" />
-                                <span>{formatDate(workout.date)}</span>
+                                <span>{moment(workout.created_at).fromNow()}</span>
                               </div>
                             </div>
 
-                            <Badge className={getIntensityBadgeStyle(workout.intensity)}>
+                            {/* <Badge className={getIntensityBadgeStyle(workout.intensity)}>
                               {workout.intensity} Intensity
-                            </Badge>
+                            </Badge> */}
                           </div>
 
                           <div className="grid grid-cols-3 gap-3 mb-4">
                             <div className="bg-gray-900/70 rounded-lg p-2.5 flex flex-col items-center justify-center border border-gray-800/30 group-hover:border-gray-700/50 transition-colors">
                               <div className="flex items-center text-cyan-400 mb-1">
                                 <Clock className="h-3.5 w-3.5 mr-1" />
-                                <span className="text-xs">Duration</span>
+                                <span className="text-xs">timer</span>
                               </div>
-                              <span className="font-medium text-gray-200">{formatDuration(workout.duration)}</span>
+                              <span className="font-medium text-gray-200">{formattimer(workout.timer)}</span>
                             </div>
 
                             <div className="bg-gray-900/70 rounded-lg p-2.5 flex flex-col items-center justify-center border border-gray-800/30 group-hover:border-gray-700/50 transition-colors">
@@ -569,40 +530,37 @@ export default function AllWorkoutsPage() {
               ) : filteredWorkouts.length > 0 ? (
                 <div className="space-y-3">
                   {filteredWorkouts.map((workout, index) => {
-                    // Calculate completion percentage
-                    const completionPercentage = Math.round((workout.completedSets / workout.totalSets) * 100)
+                    // const completionPercentage = Math.round((workout.completedSets / workout.totalSets) * 100)
 
-                    // Determine if this workout has any personal records
-                    const hasPersonalRecord = workout.personalRecords && workout.personalRecords.length > 0
 
                     return (
                       <div
                         key={workout.id}
                         className="bg-gradient-to-br from-gray-900/90 to-gray-950/95 border border-gray-800/50 rounded-xl overflow-hidden 
-                        hover:border-cyan-900/50 transition-all duration-300 cursor-pointer group hover:shadow-cyan-900/5 hover:shadow-xl
+                        hover:border-cyan-900/50 transition-all timer-300 cursor-pointer group hover:shadow-cyan-900/5 hover:shadow-xl
                         animate-fadeIn flex flex-col md:flex-row md:items-center p-4 gap-4 relative"
                         style={{ animationDelay: `${index * 50}ms` }}
                         onClick={() => handleWorkoutClick(workout)}
                       >
                         <div
-                          className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${getIntensityColor(workout.intensity)} opacity-80`}
+                          className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r  opacity-80`}
                         ></div>
 
                         <div className="flex-1">
                           <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
                             <h3 className="font-bold text-lg text-gray-100 group-hover:text-cyan-400 transition-colors flex items-center gap-2">
                               {workout.name}
-                              {hasPersonalRecord && <Trophy className="h-4 w-4 text-amber-400" />}
+                              {/* {hasPersonalRecord && <Trophy className="h-4 w-4 text-amber-400" />} */}
                             </h3>
 
-                            <Badge className={getIntensityBadgeStyle(workout.intensity)}>
+                            {/* <Badge className={getIntensityBadgeStyle(workout.intensity)}>
                               {workout.intensity} Intensity
-                            </Badge>
+                            </Badge> */}
                           </div>
 
                           <div className="flex items-center text-gray-400 text-sm mb-2">
                             <Calendar className="h-3.5 w-3.5 mr-1.5" />
-                            <span>{formatDate(workout.date)}</span>
+                            {/* <span>{formatDate(workout.date)}</span> */}
                           </div>
 
                           <div className="text-sm text-gray-400 hidden md:block">
@@ -619,7 +577,7 @@ export default function AllWorkoutsPage() {
                         <div className="flex items-center gap-4 mt-1 md:mt-0">
                           <div className="flex items-center gap-1 text-gray-300">
                             <Clock className="h-4 w-4 text-cyan-400" />
-                            <span>{formatDuration(workout.duration)}</span>
+                            <span>{formattimer(workout.timer)}</span>
                           </div>
 
                           <div className="flex items-center gap-1 text-gray-300">
@@ -634,7 +592,7 @@ export default function AllWorkoutsPage() {
 
                           <div className="hidden md:flex items-center gap-1 text-gray-300">
                             <Zap className="h-4 w-4 text-cyan-400" />
-                            <span>{completionPercentage}%</span>
+                            {/* <span>{completionPercentage}%</span> */}
                           </div>
 
                           <Button
@@ -729,9 +687,7 @@ export default function AllWorkoutsPage() {
             <DialogHeader>
               <DialogTitle className="text-xl font-bold flex items-center gap-2">
                 {selectedWorkout.name}
-                {selectedWorkout.personalRecords && selectedWorkout.personalRecords.length > 0 && (
-                  <Trophy className="h-4 w-4 text-amber-400" />
-                )}
+                
               </DialogTitle>
             </DialogHeader>
             <ScrollArea className="max-h-[calc(90vh-120px)]">

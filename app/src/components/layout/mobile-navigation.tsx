@@ -28,7 +28,7 @@ export function MobileNavigation({ activeTab }: MobileNavigationProps) {
                     icon={<Dumbbell className="h-5 w-5" />}
                     label="Workouts"
                     isActive={activeTab === "workouts"}
-                    onClick={() => nav('workouts')}
+                    onClick={() => nav('/workouts')}
                 />
                 {/* <NavItem
                     icon={<TrendingUp className="h-5 w-5" />}

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { formatRelative } from "date-fns"
 import {
   Clock,
   Calendar,
@@ -12,20 +11,16 @@ import {
   Share,
   Copy,
   Trash,
-  Trophy,
-  Heart,
-  Flame,
   Zap,
-  Play,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 // import { ExerciseAnimationModal } from "@/components/workout/exercise-animation-modal"
 import type { HistoryWorkout } from "@/types/history"
+import moment from "moment"
 
 interface WorkoutDetailViewProps {
   workout: HistoryWorkout
@@ -33,14 +28,8 @@ interface WorkoutDetailViewProps {
 
 export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   const [expandedExercises, setExpandedExercises] = useState<number[]>([])
-  const [animationExercise, setAnimationExercise] = useState<{
-    name: string
-    muscleGroup?: string
-    equipment?: string[]
-  } | null>(null)
-
   // Format the date
-  const formattedDate = formatRelative(new Date(workout.date), new Date())
+  const formattedDate = moment(workout.created_at).fromNow()
 
   // Format duration from seconds to minutes and seconds
   const formatDuration = (seconds: number) => {
@@ -57,55 +46,21 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   }
 
   // Open animation modal
-  const openAnimationModal = (exercise: { name: string; muscleGroup?: string; equipment?: string[] }) => {
-    setAnimationExercise(exercise)
-  }
 
-  // Close animation modal
-  const closeAnimationModal = () => {
-    setAnimationExercise(null)
-  }
 
   // Calculate completion percentage
-  const completionPercentage = Math.round((workout.completedSets / workout.totalSets) * 100)
+  const completionPercentage = Math.round(((workout?.completedSets ?? 0) / (workout?.totalSets ?? 1)) * 100)
 
   return (
     <div className="space-y-6 p-1">
-      {/* Animation Modal */}
-      {/* {animationExercise && (
-        <ExerciseAnimationModal
-          exerciseName={animationExercise.name}
-          muscleGroup={animationExercise.muscleGroup}
-          equipment={animationExercise.equipment}
-          isOpen={!!animationExercise}
-          onClose={closeAnimationModal}
-        />
-      )} */}
-
       {/* Workout summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Badge
-                className={`
-                  ${
-                    workout.intensity === "High"
-                      ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                      : workout.intensity === "Medium"
-                        ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                        : "bg-green-500/10 text-green-400 border border-green-500/20"
-                  }
-                `}
-              >
-                {workout.intensity === "High" ? (
-                  <Flame className="h-3.5 w-3.5 mr-1.5" />
-                ) : workout.intensity === "Medium" ? (
-                  <Zap className="h-3.5 w-3.5 mr-1.5" />
-                ) : (
-                  <Heart className="h-3.5 w-3.5 mr-1.5" />
-                )}
-                {workout.intensity} Intensity
+              <Badge className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                <Zap className="h-3.5 w-3.5 mr-1.5" />
+                Workout
               </Badge>
               <div className="flex items-center text-gray-400 text-sm">
                 <Calendar className="h-3.5 w-3.5 mr-1.5" />
@@ -146,7 +101,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
                 <Clock className="h-4 w-4 mr-1.5" />
                 <span className="text-sm">Duration</span>
               </div>
-              <span className="font-medium text-lg text-gray-100">{formatDuration(workout.duration)}</span>
+              <span className="font-medium text-lg text-gray-100">{formatDuration(workout.timer)}</span>
             </div>
 
             <div className="bg-gray-900/70 rounded-lg p-3 flex flex-col items-center justify-center border border-gray-800/30">
@@ -166,32 +121,14 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
             </div>
           </div>
 
-          {workout.notes && (
+          {workout.description && (
             <div className="bg-gray-900/70 rounded-lg p-3 border border-gray-800/30">
-              <h4 className="text-sm font-medium text-cyan-400 mb-1">Notes</h4>
-              <p className="text-gray-300 text-sm">{workout.notes}</p>
+              <h4 className="text-sm font-medium text-cyan-400 mb-1">description</h4>
+              <p className="text-gray-300 text-sm">{workout.description}</p>
             </div>
           )}
 
-          {/* Personal records section */}
-          {workout.personalRecords && workout.personalRecords.length > 0 && (
-            <div className="bg-gradient-to-r from-amber-900/20 to-amber-800/10 rounded-lg p-3 border border-amber-800/30">
-              <h4 className="text-sm font-medium text-amber-400 mb-2 flex items-center">
-                <Trophy className="h-4 w-4 mr-1.5" />
-                Personal Records
-              </h4>
-              <div className="space-y-2">
-                {workout.personalRecords.map((record, index) => (
-                  <div key={index} className="flex items-center justify-between bg-gray-900/30 rounded-md p-2">
-                    <span className="text-gray-200 text-sm">{record.exercise}</span>
-                    <Badge className="bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                      {record.type === "weight" ? `${record.value}kg` : `${record.value} reps`}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+
         </div>
 
         <div className="bg-gray-900/70 rounded-lg p-4 border border-gray-800/30">
@@ -211,59 +148,12 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
               </div>
               <Progress
                 value={completionPercentage}
-                className="h-2 bg-gray-800/70"
-                indicatorClassName={
+                className={
                   completionPercentage === 100
-                    ? "bg-gradient-to-r from-green-500 to-green-400"
-                    : "bg-gradient-to-r from-cyan-500 to-blue-400"
+                    ? "bg-gradient-to-r from-green-500 to-green-400 h-2 bg-gray-800/70"
+                    : "bg-gradient-to-r from-cyan-500 to-blue-400 h-2 bg-gray-800/70"
                 }
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-gray-900/50 rounded-lg p-3 border border-gray-800/20">
-                <div className="text-sm text-gray-400 mb-1">Calories Burned</div>
-                <div className="text-lg font-medium text-gray-100 flex items-center">
-                  <Flame className="h-4 w-4 mr-1.5 text-orange-400" />
-                  {workout.caloriesBurned} kcal
-                </div>
-              </div>
-              <div className="bg-gray-900/50 rounded-lg p-3 border border-gray-800/20">
-                <div className="text-sm text-gray-400 mb-1">Avg. Rest Time</div>
-                <div className="text-lg font-medium text-gray-100 flex items-center">
-                  <Clock className="h-4 w-4 mr-1.5 text-blue-400" />
-                  {workout.averageRestTime}s
-                </div>
-              </div>
-            </div>
-
-            {/* Workout performance comparison */}
-            <div className="mt-2">
-              <h5 className="text-sm font-medium text-gray-300 mb-2">Performance vs Average</h5>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-400">Volume</span>
-                  <div className="flex items-center">
-                    <span
-                      className={`text-sm ${workout.volumeVsAverage > 0 ? "text-green-400" : workout.volumeVsAverage < 0 ? "text-red-400" : "text-gray-400"}`}
-                    >
-                      {workout.volumeVsAverage > 0 ? "+" : ""}
-                      {workout.volumeVsAverage}%
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-400">Intensity</span>
-                  <div className="flex items-center">
-                    <span
-                      className={`text-sm ${workout.intensityVsAverage > 0 ? "text-green-400" : workout.intensityVsAverage < 0 ? "text-red-400" : "text-gray-400"}`}
-                    >
-                      {workout.intensityVsAverage > 0 ? "+" : ""}
-                      {workout.intensityVsAverage}%
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -278,7 +168,6 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
             const isExpanded = expandedExercises.includes(exercise.id)
             const completedSets = exercise.sets.filter((set) => set.isCompleted).length
             const exerciseCompletion = Math.round((completedSets / exercise.sets.length) * 100)
-            const hasPersonalRecord = exercise.personalRecord
 
             return (
               <Card
@@ -299,18 +188,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
                       <div>
                         <h4 className="font-medium text-gray-100 flex items-center gap-1.5">
                           {exercise.name}
-                          {hasPersonalRecord && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <Trophy className="h-3.5 w-3.5 text-amber-400" />
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-gray-900 border-gray-800 text-gray-100">
-                                  <p>Personal Record!</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
+
                         </h4>
                         <div className="text-xs text-gray-400">
                           {exercise.sets.length} sets • {exercise.muscleGroup}
@@ -318,21 +196,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-gray-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-full"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          openAnimationModal({
-                            name: exercise.name,
-                            muscleGroup: exercise.muscleGroup,
-                            equipment: exercise.equipment,
-                          })
-                        }}
-                      >
-                        <Play className="h-4 w-4" />
-                      </Button>
+
                       <div className="text-right">
                         <div className="text-sm font-medium text-cyan-400">{exercise.totalVolume} kg</div>
                         <div className="text-xs text-gray-400">volume</div>
@@ -382,12 +246,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
                         ))}
                       </div>
 
-                      {exercise.notes && (
-                        <div className="mt-3 bg-gray-900/50 rounded-lg p-2 text-sm border border-gray-800/20">
-                          <span className="text-cyan-400 font-medium">Notes: </span>
-                          <span className="text-gray-300">{exercise.notes}</span>
-                        </div>
-                      )}
+
                     </div>
                   </CardContent>
                 )}
