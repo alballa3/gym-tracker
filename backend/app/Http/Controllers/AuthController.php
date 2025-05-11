@@ -20,6 +20,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6'
         ]);
+
         $user = User::create([
             'name' => $vaildtion['name'],
             'email' => $vaildtion['email'],
@@ -56,6 +57,12 @@ class AuthController extends Controller
         return response()->json([
             'user' => $user,
             'token' => $token,
+        ], 201);
+    }
+    public function logout(Request $request){
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            'message' => 'Logged out',
         ], 201);
     }
 }

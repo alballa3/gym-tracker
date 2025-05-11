@@ -68,4 +68,11 @@ class WorkoutController extends Controller
         $template = workout::find($template);
         return response()->json($template);
     }
+    public function getExercises(Request $request)
+    {
+        $exercises = workout::where('is_template', true)->pluck('exercises')->toArray();
+        $exercises = array_merge(...$exercises);
+        $exercises = array_unique($exercises);
+        return response()->json($exercises);
+    }
 }

@@ -7,17 +7,16 @@ import { useEffect, useState } from "react"
 import { api } from "@/api"
 import { Profile, User } from "@/types/user"
 import { MobileNavigation } from "@/components/layout/mobile-navigation"
+import { AppHeader } from "@/components/layout/app-header"
 
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User>()
   const [profile, setProfile] = useState<Profile>()
-
   useEffect(() => {
     const fetchUser = async () => {
       const client = await api()
       const user = await client.get("/profile")
-      
       setProfile(user.data)
       setUser(user.data.user)
     }
@@ -25,6 +24,7 @@ export default function ProfilePage() {
   },[])
   return (
     <main className="min-h-screen bg-gradient-to-b from-black to-zinc-950 text-white pb-20 pt-4 md:pt-8 px-4">
+      <AppHeader/>
       <div className="max-w-5xl mx-auto space-y-8">
         {profile && <ProfileHeader user={profile} setUser={setUser} />}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

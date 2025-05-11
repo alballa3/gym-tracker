@@ -4,10 +4,10 @@ const config: CapacitorConfig = {
   appId: 'gymrat.com',
   appName: 'gym',
   webDir: 'dist',
-  // server: {
-  //   url: 'http://192.168.70.118:3000',
-  //   cleartext: true
-  // },
+  server: {
+    url: 'http://192.168.70.118:3000',
+    cleartext: true
+  },
   plugins: {
     SplashScreen: {
       launchAutoHide: false, // disable auto hide

@@ -11,6 +11,7 @@ import { GuestLayout } from "./components/layout/layout";
 import GenerateWorkoutPage from "./pages/page";
 import ProfilePage from "./pages/profile";
 import AllWorkoutsPage from "./pages/workouts";
+import SearchUsersPage from "./pages/search";
 
 
 
@@ -32,6 +33,7 @@ function App() {
   return (
       <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/users" element={<SearchUsersPage />} />
         <Route path="/workout/ai" element={<GenerateWorkoutPage/>}/>
         <Route path="/auth" element={<GuestLayout/>}>
           <Route path="login" element={<LoginPage />} />

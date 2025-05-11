@@ -122,26 +122,32 @@ export default function RegisterForm() {
     setTouchStart(e.touches[0].clientX)
   }
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const touchEnd = e.changedTouches[0].clientX
-    const diff = touchStart - touchEnd
+  const [swipeLocked, setSwipeLocked] = useState(false);
 
-    // Detect swipe direction if the swipe is significant (more than 50px)
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (swipeLocked) return;
+
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStart - touchEnd;
+
     if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        // Swipe left - go to next step
-        setSwipeDirection("left")
-        if (step < 4) nextStep()
-      } else {
-        // Swipe right - go to previous step
-        setSwipeDirection("right")
-        if (step > 1) prevStep()
+      setSwipeLocked(true);
+
+      if (diff > 0 && step < 4) {
+        setSwipeDirection("left");
+        nextStep();
+      } else if (diff < 0 && step > 1) {
+        setSwipeDirection("right");
+        prevStep();
       }
 
-      // Reset swipe direction after animation completes
-      setTimeout(() => setSwipeDirection(null), 500)
+      setTimeout(() => {
+        setSwipeDirection(null);
+        setSwipeLocked(false);
+      }, 500);
     }
-  }
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -8,16 +8,13 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { WorkoutDetailView } from "@/components/history/workout-detail-view"
 import { Progress } from "@/components/ui/progress"
 import type { HistoryWorkout } from "@/types/history"
 import moment from "moment";
 import {
   Search,
-  Grid3x3Icon as Grid3,
-  List,
-  CalendarDays,
   Dumbbell,
   Clock,
   BarChart3,
@@ -61,19 +58,21 @@ export default function AllWorkoutsPage() {
       setWorkouts(workoutData)
 
       
-      console.log(workouts)
-      // setFilteredWorkouts(res.data)
-      // setWorkouts(mockWorkoutHistory)
-      // setFilteredWorkouts(mockWorkoutHistory)
-      
+   
       // Calculate stats
       const total = workouts.length
       const timer = workouts.reduce((acc, workout) => acc + workout.timer, 0)
-      // const volume = workouts.reduce((acc, workout) => acc +, 0)
-
+      const volume = workouts.map((ex) => {
+        if (ex.exercises && ex.exercises.length > 0) {
+          return ex.exercises.reduce((acc, e) => {
+            return Number(acc) + (e.sets ? e.sets.filter((s) => s.isCompleted).reduce((acc, s) => Number(acc) + Number(s.weight) * Number(s.reps), 0) : 0);
+          }, 0)
+        }
+      }).reduce((acc, val) => Number(acc) + Number(val || 0), 0)
+      console.log(volume)
       setTotalWorkouts(total)
       setTotaltimer(timer)
-      setTotalVolume(0)
+      setTotalVolume(volume || 0)
 
       setIsLoading(false)
     }, 800)
@@ -228,7 +227,7 @@ export default function AllWorkoutsPage() {
             className="mb-6 animate-fadeIn animation-delay-300"
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-              <TabsList className="bg-gray-900/50 border border-gray-800 p-1 h-auto">
+              {/* <TabsList className="bg-gray-900/50 border border-gray-800 p-1 h-auto">
                 <TabsTrigger
                   value="grid"
                   className="data-[state=active]:bg-gray-800 data-[state=active]:text-cyan-400 px-4 py-2"
@@ -236,21 +235,8 @@ export default function AllWorkoutsPage() {
                   <Grid3 className="h-4 w-4 mr-2" />
                   Grid
                 </TabsTrigger>
-                <TabsTrigger
-                  value="list"
-                  className="data-[state=active]:bg-gray-800 data-[state=active]:text-cyan-400 px-4 py-2"
-                >
-                  <List className="h-4 w-4 mr-2" />
-                  List
-                </TabsTrigger>
-                <TabsTrigger
-                  value="calendar"
-                  className="data-[state=active]:bg-gray-800 data-[state=active]:text-cyan-400 px-4 py-2"
-                >
-                  <CalendarDays className="h-4 w-4 mr-2" />
-                  Calendar
-                </TabsTrigger>
-              </TabsList>
+            
+              </TabsList> */}
 
               <div className="flex items-center gap-2">
                 <Button

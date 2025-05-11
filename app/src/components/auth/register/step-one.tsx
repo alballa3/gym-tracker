@@ -144,16 +144,41 @@ export default function StepOne({ onNext }: StepOneProps) {
           onClick={onNext}
           className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white py-2.5 sm:py-3 rounded-lg transition-all duration-300 font-medium shadow-lg shadow-blue-500/20 relative overflow-hidden group"
         >
-          <span className="relative z-10">Get Started</span>
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            Get Started
+            <motion.svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2"
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              animate={{ x: [0, 5, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+            >
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </motion.svg>
+          </span>
+
+          {/* Gradient hover effect */}
           <span className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
 
-          {/* Mobile tap effect */}
+          {/* Ripple effect on tap */}
           <motion.span
-            className="absolute inset-0 bg-white rounded-lg pointer-events-none"
+            className="absolute inset-0 bg-white/20 rounded-lg pointer-events-none"
             initial={{ scale: 0, opacity: 0 }}
             whileTap={{ scale: 1.5, opacity: 0 }}
             transition={{ duration: 0.5 }}
           />
+
+          {/* Shine effect */}
+          <span className="absolute inset-0 overflow-hidden rounded-lg">
+            <span className="absolute top-0 left-0 w-1/4 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-30 translate-x-[-150%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
+          </span>
         </Button>
       </motion.div>
     </motion.div>

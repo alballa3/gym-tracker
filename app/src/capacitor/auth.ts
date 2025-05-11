@@ -12,3 +12,12 @@ export async function get_token() {
        return null
    }
 }
+export async function delete_token() {
+    try {
+        let token = await SecureStoragePlugin.remove({ key: "token" })
+        return token.value || null
+    } catch (error) {
+        console.error(error)
+        return null
+    }
+}

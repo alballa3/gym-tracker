@@ -1,72 +1,99 @@
 "use client"
 
-import { Home, Dumbbell, Settings } from "lucide-react"
-import { motion } from "framer-motion"
-import { useNavigate } from "react-router"
-
+import { Home, Dumbbell, User } from "lucide-react"
+import React, { useState, useEffect } from "react"
+import { Link, useLocation } from "react-router"
 interface MobileNavigationProps {
-    activeTab: string
+    activeTab?: string
 }
 
-export function MobileNavigation({ activeTab }: MobileNavigationProps) {
-    let nav=useNavigate()
+export function MobileNavigation({ activeTab: propActiveTab }: MobileNavigationProps) {
+    const pathname = useLocation().pathname
+    const [activeTab, setActiveTab] = useState(propActiveTab || getActiveTabFromPath(pathname))
+
+    useEffect(() => {
+        if (propActiveTab) {
+            setActiveTab(propActiveTab)
+        } else {
+            setActiveTab(getActiveTabFromPath(pathname))
+        }
+    }, [pathname, propActiveTab])
+
+    function getActiveTabFromPath(path: string) {
+        if (path === "/") return "home"
+        if (path.includes("/workouts")) return "workouts"
+        if (path.includes("/profile")) return "profile"
+        return ""
+    }
+
     return (
-        <motion.nav
-            className="fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur-md border-t border-gray-800/50 px-6 py-2 shadow-lg z-10"
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.4, delay: 0.5 }}
-        >
-            <div className="flex items-center justify-around">
-                <NavItem
-                    icon={<Home className="h-5 w-5" />}
-                    label="Home"
-                    isActive={activeTab === "home"}
-                    onClick={() => nav("/")}
-                />
-                <NavItem
-                    icon={<Dumbbell className="h-5 w-5" />}
-                    label="Workouts"
-                    isActive={activeTab === "workouts"}
-                    onClick={() => nav('/workouts')}
-                />
-                {/* <NavItem
-                    icon={<TrendingUp className="h-5 w-5" />}
-                    label="Progress"
-                    isActive={activeTab === "progress"}
-                    onClick={() => setActiveTab("progress")}
-                /> */}
-                <NavItem
-                    icon={<Settings className="h-5 w-5" />}
-                    label="Profile"
-                    isActive={activeTab === "profile"}
-                    onClick={() => nav("/profile")}
-                />
-            </div>
-        </motion.nav>
+        <div className="fixed bottom-0 left-0 right-0 z-10">
+            {/* Backdrop blur effect */}
+            <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-lg border-t border-gray-800/50" />
+
+            {/* Actual navigation */}
+            <nav className="relative px-6 py-3">
+                <div className="flex items-center justify-around">
+                    <NavItem
+                        icon={<Home />}
+                        label="Home"
+                        to="/"
+                        isActive={activeTab === "home"}
+                        onClick={() => setActiveTab("home")}
+                    />
+                    <NavItem
+                        icon={<Dumbbell />}
+                        label="Workouts"
+                        to="/workouts"
+                        isActive={activeTab === "workouts"}
+                        onClick={() => setActiveTab("workouts")}
+                    />
+                    <NavItem
+                        icon={<User />}
+                        label="Profile"
+                        to="/profile"
+                        isActive={activeTab === "profile"}
+                        onClick={() => setActiveTab("profile")}
+                    />
+                </div>
+            </nav>
+        </div>
     )
 }
 
-function NavItem({ 
-    icon, 
-    label, 
-    isActive, 
-    onClick 
-}: {
-    icon: React.ReactNode;
-    label: string;
-    isActive: boolean;
-    onClick: () => void;
-}) {
+interface NavItemProps {
+    icon: React.ReactNode
+    label: string
+    isActive: boolean
+    to: string
+    onClick: () => void
+}
+
+function NavItem({ icon, label, isActive, to, onClick }: NavItemProps) {
     return (
-        <motion.button
-            className={`flex flex-col items-center py-1 px-3 rounded-xl transition-colors ${isActive ? "text-blue-300 bg-blue-500/20" : "text-gray-400 hover:text-gray-300"
-                }`}
-            onClick={onClick}
-            whileTap={{ scale: 0.95 }}
-        >
-            {icon}
-            <span className="text-xs mt-1">{label}</span>
-        </motion.button>
+        <Link to={to} onClick={onClick} className="group">
+            <div className="flex flex-col items-center">
+                {/* Indicator line */}
+                <div className={`h-0.5 w-8 mb-2 transition-all duration-300 rounded-full ${isActive ? "bg-blue-500" : "bg-transparent"
+                    }`} />
+
+                {/* Icon with animated background */}
+                <div className={`p-2 rounded-xl transition-all duration-300 ${isActive
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-800/50 text-gray-400 group-hover:bg-gray-800 group-hover:text-gray-200"
+                    }`}>
+                    {React.cloneElement(icon as React.ReactElement, {
+                        className: "h-5 w-5",
+                        strokeWidth: isActive ? 2.5 : 2
+                    })}
+                </div>
+
+                {/* Label */}
+                <span className={`text-xs mt-1.5 font-medium transition-colors duration-300 ${isActive ? "text-gray-100" : "text-gray-400 group-hover:text-gray-300"
+                    }`}>
+                    {label}
+                </span>
+            </div>
+        </Link>
     )
 }

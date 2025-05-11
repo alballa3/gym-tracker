@@ -41,6 +41,12 @@ function WorkoutForm() {
                 const response = await client.get(`/template/${id}`)
                 const data: WorkoutFormState = response.data
                 data.saveAsTemplate = false
+                data.exercises.map((exercise) => {
+                    exercise.sets = exercise.sets.map((set) => ({
+                        ...set,
+                        isCompleted:false
+                    }))
+                })
                 dispatch({
                     type: "LOAD_WORKOUT",
                     payload: data

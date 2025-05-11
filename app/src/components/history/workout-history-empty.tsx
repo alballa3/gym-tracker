@@ -1,6 +1,6 @@
 import { Calendar, ArrowRight, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { Link } from "react-router"
 
 export function WorkoutHistoryEmpty() {
   return (
@@ -14,13 +14,13 @@ export function WorkoutHistoryEmpty() {
         journey.
       </p>
       <div className="flex flex-col sm:flex-row gap-3">
-        <Link href="/create">
+        <Link to="/create">
           <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white">
             <Plus className="mr-2 h-4 w-4" />
             Create Workout
           </Button>
         </Link>
-        <Link href="/generate">
+        <Link to="/generate">
           <Button variant="outline" className="bg-gray-900/50 border-gray-800 text-gray-100 hover:bg-gray-800">
             Generate AI Workout
             <ArrowRight className="ml-2 h-4 w-4" />

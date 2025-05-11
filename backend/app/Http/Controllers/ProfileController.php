@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\profile;
+use App\Models\User;
 use App\Models\workout;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
-    public function get(Request $request){
+    public function get(Request $request)
+    {
         $user = $request->user()->id;
-        $workout = workout::where('user_id', $user)->where('is_template',true)->count();
-        $profile= profile::where('user_id', $user)->with('user')->first();
+        $workout = workout::where('user_id', $user)->where('is_template', true)->count();
+        $profile = profile::where('user_id', $user)->with('user')->first();
         $profile->workout = $workout;
         return response()->json($profile);
     }
@@ -76,7 +78,7 @@ class ProfileController extends Controller
     // Update Goals (JSON Array)
     public function updateGoals(Request $request)
     {
-        $profile=$request->user()->profile();
+        $profile = $request->user()->profile();
         $data = $request->validate([
             'goals' => 'array',
         ]);
@@ -84,7 +86,8 @@ class ProfileController extends Controller
 
         return response()->json($profile);
     }
-    public function updateName(Request $request){
+    public function updateName(Request $request)
+    {
         $data = $request->validate([
             'name' => 'required|string|max:50',
         ]);
@@ -92,6 +95,19 @@ class ProfileController extends Controller
         $profile = $request->user();
         $profile->update($data);
 
+        return response()->json($profile);
+    }
+    public function search(Request $request)
+    {
+        $search = $request->input('search');
+        $profile = User::where('name', 'LIKE', "%$search%")
+            ->select('name', 'created_at', 'id')
+            ->withCount('workouts')
+            ->with(['profile:id,user_id,bio,followers'])
+            ->limit(5)
+            ->latest()
+            ->get();
+       
         return response()->json($profile);
     }
 }
