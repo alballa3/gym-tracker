@@ -48,10 +48,22 @@ class User extends Authenticatable
             'user_data' => 'array'
         ];
     }
-    public function Workouts(){
+    public function Workouts()
+    {
         return $this->hasMany(workout::class);
     }
-    public function profile(){
+    public function profile()
+    {
         return $this->hasOne(profile::class);
+    }
+    // Users this user is following
+    public function followings()
+    {
+        return $this->hasMany(Follow::class, 'user_id');
+    }
+    // Users who follow this user
+    public function followers()
+    {
+        return $this->hasMany(Follow::class, 'follows_user_id');
     }
 }

@@ -61,14 +61,14 @@ class WorkoutController extends Controller
     }
     public function getTemplate(Request $request){
         $user = $request->user()->id;
-        $template = workout::where('user_id', $user)->where('is_template',true)->limit(5)->get();
+        $template = workout::where('user_id', $user)->where('is_template',true)->latest()->get();
         return response()->json($template);
     }
     public function showTemplate($template){
-        $template = workout::find($template);
+        $template = workout::where('name','LIKE', '%'.$template.'%')->latest()->limit(1)->get();
         return response()->json($template);
     }
-    public function getExercises(Request $request)
+    public function getExercises()
     {
         $exercises = workout::where('is_template', true)->pluck('exercises')->toArray();
         $exercises = array_merge(...$exercises);

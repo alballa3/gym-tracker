@@ -14,6 +14,7 @@ import { ExerciseCard } from "../workout/index/exercise-card"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { api } from "@/api"
 import { useNavigate } from "react-router"
+import { storeWorkout } from "@/capacitor/store"
 
 interface GeneratedWorkoutPreviewProps {
   workout: GeneratedWorkout
@@ -24,25 +25,36 @@ interface GeneratedWorkoutPreviewProps {
 export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: GeneratedWorkoutPreviewProps) {
   // Animation for exercise cards
   const [animatedItems, setAnimatedItems] = useState<number[]>([])
+  // console.log("am testing my own",workout)
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
   const [filteredExercises, setFilteredExercises] = useState(workout.exercises)
-  let nav=useNavigate()
+  let nav = useNavigate()
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
   const [showFilters, setShowFilters] = useState(false)
-  const handle = async() => {
-    const client = await api()
-    await client.post("/template", {
+  const handle = async () => {
+    const data = {
+      id: crypto.randomUUID(),
       name: workout.name,
+      is_template: true,
+      created_at:new Date(),
       description: workout.description,
       exercises: workout.exercises,
       timer: parseInt(workout.duration as unknown as string) * 60
-    })
-    nav("/")
+    }
+    try {
+      const client = await api()
+      await client.post("/template", data)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      storeWorkout(data)
+      nav("/")
+    }
   }
 
   // Check if screen is mobile
   const isMobile = useMediaQuery("(max-width: 768px)")
-  
+
   // Dynamically adjust scroll area height based on screen size
   const getScrollHeight = () => {
     if (typeof window !== "undefined") {
@@ -51,16 +63,16 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
     }
     return "450px";
   }
-  
+
   const [scrollHeight, setScrollHeight] = useState("450px")
-  
+
   useEffect(() => {
     setScrollHeight(getScrollHeight())
-    
+
     const handleResize = () => {
       setScrollHeight(getScrollHeight())
     }
-    
+
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [isMobile])
@@ -226,18 +238,18 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
                         index={index}
                         isFirst={index === 0}
                         isLast={index === filteredExercises.length - 1}
-                        onMoveUp={() => {}}
-                        onMoveDown={() => {}}
-                        onRemove={() => {}}
-                        onDuplicate={() => {}}
-                        onToggleExpand={() => {}}
-                        onUpdateRestTime={() => {}}
-                        onAddSet={() => {}}
-                        onRemoveSet={() => {}}
-                        onUpdateSet={() => {}}
-                        onNameChange={() => {}}
-                        onShowDetails={() => {}}
-                        onToggleSetCompletion={() => {}}
+                        onMoveUp={() => { }}
+                        onMoveDown={() => { }}
+                        onRemove={() => { }}
+                        onDuplicate={() => { }}
+                        onToggleExpand={() => { }}
+                        onUpdateRestTime={() => { }}
+                        onAddSet={() => { }}
+                        onRemoveSet={() => { }}
+                        onUpdateSet={() => { }}
+                        onNameChange={() => { }}
+                        onShowDetails={() => { }}
+                        onToggleSetCompletion={() => { }}
                       />
                     </motion.div>
                   ))}
@@ -246,11 +258,11 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
             </motion.div>
           </div>
 
-          <motion.div 
-            variants={item} 
+          <motion.div
+            variants={item}
             className="flex flex-col sm:flex-row gap-3 mt-8"
           >
-            <Button 
+            <Button
               className="
                 flex-1 relative group overflow-hidden
                 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500

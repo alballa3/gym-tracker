@@ -4,10 +4,12 @@ import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 export async function storeWorkout(state: any) {
     try {
         await Filesystem.stat({
-            path: 'workout',
+            path: 'workout/',
             directory: Directory.Data,
         })
+        console.log('workout directory exists')
     } catch (error) {
+        console.log('workout directory does not exist', error)
         await Filesystem.mkdir({
             path: 'workout',
             directory: Directory.Data,
@@ -22,45 +24,64 @@ export async function storeWorkout(state: any) {
         encoding: Encoding.UTF8
     });
 }
-export async function storeTemplate(state: any) {
-    try {
-        await Filesystem.stat({
-            path: 'template',
-            directory: Directory.Data,
-        })
-    } catch (error) {
-        await Filesystem.mkdir({
-            path: 'template',
-            directory: Directory.Data,
-            recursive: true,
-        });
-    }
-
-    await Filesystem.writeFile({
-        path: `template/${state.id}.json`,
-        data: JSON.stringify(state),
-        directory: Directory.Data,
-        encoding: Encoding.UTF8
-    });
-}
 export async function getWorkout(id: string) {
-    let file = await Filesystem.readFile({
-        path: `workout/${id}.json`,
+    let file = await Filesystem.readdir({
+        path: `workout/`,
         directory: Directory.Data,
-        encoding: Encoding.UTF8
     })
-    let data: WorkoutFormState = JSON.parse(file.data as string)
-    data.saveAsTemplate = false;
-    data.exercises.map((execures) => {
-        execures.previousData = {
-            date: new Date(Number(data.created_at)).toISOString(),
-            sets: execures.sets.map((set) => ({ ...set })), // deep clone each set
+    let workouts = []
+    for (const fileName of file.files) {
+        let file = await Filesystem.readFile({
+            path: `workout/${fileName.name}`,
+            directory: Directory.Data,
+            encoding: Encoding.UTF8
+        });
+        let workout: WorkoutFormState = JSON.parse(file.data as string)
+        if (workout.name !== id) {
+            continue;
         }
-        execures.sets.map((set) => {
-            set.isCompleted = false;
-            set.reps = 1
-            set.weight = 1
-            return set
-        })
+        workouts.push(workout)
+    }
+    return workouts
+}
+export async function getAllTemplate() {
+    let file = await Filesystem.readdir({
+        path: `workout/`,
+        directory: Directory.Data,
     })
+    let workouts = []
+    for (const fileName of file.files) {
+        let file = await Filesystem.readFile({
+            path: `workout/${fileName.name}`,
+            directory: Directory.Data,
+            encoding: Encoding.UTF8
+        });
+        let workout: WorkoutFormState = JSON.parse(file.data as string)
+        if (!workout.is_template) {
+            continue;
+        }
+        workouts.push(workout)
+    }
+    return workouts
+}
+
+export async function getAllWorkouts() {
+    let file = await Filesystem.readdir({
+        path: `workout/`,
+        directory: Directory.Data,
+    })
+    let workouts = []
+    for (const fileName of file.files) {
+        let file = await Filesystem.readFile({
+            path: `workout/${fileName.name}`,
+            directory: Directory.Data,
+            encoding: Encoding.UTF8
+        });
+        let workout: WorkoutFormState = JSON.parse(file.data as string)
+        if (workout.is_template) {
+            continue;
+        }
+        workouts.push(workout)
+    }
+    return workouts
 }

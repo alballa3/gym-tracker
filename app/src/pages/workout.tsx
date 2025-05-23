@@ -14,10 +14,11 @@ import type { Exercise } from "@/types/exercise"
 import { useNavigate, useParams } from "react-router"
 import { WorkoutFormState } from "@/types/workout"
 import { api } from "@/api"
-import { storeWorkout } from "@/capacitor/store"
-import { toast } from "sonner"
+import { getWorkout, storeWorkout } from "@/capacitor/store"
+import { toast, Toaster } from "sonner"
 import AICoach from "./ai-coach"
 import { motion, AnimatePresence } from "framer-motion"
+import moment from "moment"
 
 function WorkoutForm() {
     const {
@@ -32,33 +33,65 @@ function WorkoutForm() {
     const [isLoading, setIsLoading] = useState(true)
     const nav = useNavigate()
     const { id } = useParams()
-    
+
     useEffect(() => {
         const handle = async () => {
             setIsLoading(true)
+            console.log(id)
             try {
                 const client = await api()
                 const response = await client.get(`/template/${id}`)
-                const data: WorkoutFormState = response.data
-                data.saveAsTemplate = false
-                data.exercises.map((exercise) => {
-                    exercise.sets = exercise.sets.map((set) => ({
-                        ...set,
-                        isCompleted:false
-                    }))
+                const data: WorkoutFormState = response.data[0]
+                data.is_template = false;
+                data.exercises.map((execures) => {
+                    execures.previousData = {
+                        date: moment(data.created_at).fromNow(),
+                        sets: execures.sets.map((set) => ({ ...set })), // deep clone each set
+                    }
+                    execures.sets.map((set) => {
+                        set.isCompleted = false;
+                        set.reps = 1
+                        set.weight = 1
+                        return set
+                    })
                 })
+                console.log(data)
                 dispatch({
                     type: "LOAD_WORKOUT",
                     payload: data
                 })
+
             } catch (error) {
-                toast.error("Failed to load workout template")
                 console.error(error)
+                toast.error("Turn into Offline Mode")
+                const workout = await getWorkout(id as string);
+
+                const data = workout.reduce((maxItem, currentItem) => {
+                    return Number(currentItem.created_at) > Number(maxItem.created_at) ? currentItem : maxItem;
+                }, workout[0]);
+                data.is_template = false;
+                data.exercises.map((execures) => {
+                    execures.previousData = {
+                        date: moment(data.created_at).fromNow(),
+                        sets: execures.sets.map((set) => ({ ...set })), // deep clone each set
+                    }
+                    execures.sets.map((set) => {
+                        set.isCompleted = false;
+                        set.reps = 1
+                        set.weight = 1
+                        return set
+                    })
+                })
+                console.log(data)
+                dispatch({
+                    type: "LOAD_WORKOUT",
+                    payload: data
+                })
             } finally {
                 setIsLoading(false)
             }
         }
-        
+
         if (id) {
             handle()
         } else {
@@ -80,14 +113,14 @@ function WorkoutForm() {
         // Clean up the interval when the component unmounts
         return () => clearInterval(timerInterval)
     }, [])
-    
+
     useEffect(() => {
         dispatch({
             type: "SET_TIMER",
             payload: elapsedTime
         })
     }, [elapsedTime, dispatch])
-    
+
     // Format seconds to MM:SS
     const formatTime = (seconds: number): string => {
         const minutes = Math.floor(seconds / 60)
@@ -98,10 +131,17 @@ function WorkoutForm() {
     const handleSave = async () => {
         toast.promise(
             async () => {
-                storeWorkout(state)
-                const client = await api()
-                await client.post("/workouts", state)
-                nav("/")
+                console.log(state)
+                try {
+                    const client = await api()
+                    await client.post("/workouts", state)
+                } catch (error) {
+                    toast.error("Failed to save workout it will be stored locally")
+                    console.error(error)
+                } finally {
+                    await storeWorkout(state)
+                    nav("/")
+                }
             },
             {
                 loading: 'Saving your workout...',
@@ -125,7 +165,7 @@ function WorkoutForm() {
         }
         // Switch back to the workout tab
         setActiveTab("workout")
-        
+
         // Show success toast
         toast.success(`Added ${exercise.name} to your workout`)
     }
@@ -143,7 +183,7 @@ function WorkoutForm() {
     }
 
     const getTabIcon = (tab: string) => {
-        switch(tab) {
+        switch (tab) {
             case 'workout': return <Dumbbell className="h-4 w-4" />
             case 'library': return <Library className="h-4 w-4" />
             case 'ai': return <Brain className="h-4 w-4" />
@@ -153,7 +193,8 @@ function WorkoutForm() {
 
     return (
         <AnimatePresence>
-            <motion.div 
+            <Toaster />
+            <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -164,10 +205,10 @@ function WorkoutForm() {
                     <div className="max-w-7xl mx-auto">
                         <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
-                            
+
                                 <div className="flex flex-col gap-1">
                                     <h1 className="font-bold">
-                                        <motion.span 
+                                        <motion.span
                                             initial={{ opacity: 0, y: -10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.2 }}
@@ -178,7 +219,7 @@ function WorkoutForm() {
                                     </h1>
                                 </div>
                             </div>
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.3 }}
@@ -195,7 +236,7 @@ function WorkoutForm() {
 
                 {/* Main Content */}
                 <main className="container mx-auto px-4 py-6">
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
@@ -216,7 +257,7 @@ function WorkoutForm() {
                                 ))}
                             </TabsList>
 
-                            <AnimatePresence mode="wait">
+                            <AnimatePresence >
                                 <TabsContent value="workout" className="mt-6 space-y-4">
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
@@ -331,7 +372,7 @@ function WorkoutForm() {
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.5, type: "spring" }}
                 >
-                    <BottomActionBar saveAsTemplate={state.saveAsTemplate} onSave={handleSave} />
+                    <BottomActionBar is_template={state.is_template} onSave={handleSave} />
                 </motion.div>
             </motion.div>
         </AnimatePresence>

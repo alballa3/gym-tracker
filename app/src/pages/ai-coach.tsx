@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Send, Bot, Dumbbell, MessageSquare, User } from "lucide-react"
+import { Send, Bot, Dumbbell, MessageSquare, User, WifiOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -19,8 +19,6 @@ type Message = {
 }
 
 // Sample responses for demonstration
-
-
 const suggestedQuestionsStatic = [
     "How can I improve my squat form?",
     "What's the best way to increase my bench press?",
@@ -29,8 +27,6 @@ const suggestedQuestionsStatic = [
     "How do I break through a weight loss plateau?",
     "What's a good workout split for muscle gain?"
 ];
-
-
 
 export default function AICoach() {
     const [messages, setMessages] = useState<Message[]>([
@@ -43,6 +39,7 @@ export default function AICoach() {
     ])
     const [input, setInput] = useState("")
     const [isLoading, setIsLoading] = useState(false)
+    const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine)
     const [windowWidth, setWindowWidth] = useState(
         typeof window !== "undefined" ? window.innerWidth : 0
     )
@@ -50,6 +47,26 @@ export default function AICoach() {
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
     const scrollAreaRef = useRef<HTMLDivElement>(null)
+
+    // Handle online/offline status
+    useEffect(() => {
+        const handleOnlineStatus = () => {
+            setIsOnline(navigator.onLine)
+            if (!navigator.onLine) {
+                toast.error("You're offline. AI Coach is not available without an internet connection.")
+            } else {
+                toast.success("You're back online!")
+            }
+        }
+
+        window.addEventListener('online', handleOnlineStatus)
+        window.addEventListener('offline', handleOnlineStatus)
+
+        return () => {
+            window.removeEventListener('online', handleOnlineStatus)
+            window.removeEventListener('offline', handleOnlineStatus)
+        }
+    }, [])
 
     // Handle window resize for responsiveness
     useEffect(() => {
@@ -74,6 +91,10 @@ export default function AICoach() {
 
     const handleSendMessage = async () => {
         if (!input.trim()) return
+        if (!isOnline) {
+            toast.error("You're offline. Please check your internet connection.")
+            return
+        }
 
         // Add user message
         const userMessage: Message = {
@@ -100,13 +121,11 @@ export default function AICoach() {
             setMessages(prev => [...prev, aiMessage])
         } catch (error) {
             console.error(error)
-            toast.error("An error occurred while fetching the response,Try Again Later.")
+            toast.error("An error occurred while fetching the response. Try Again Later.")
         } finally {
             setInput("")
-
             setIsLoading(false)
         }
-
     }
 
     const handleSuggestedQuestion = (question: string) => {
@@ -114,12 +133,49 @@ export default function AICoach() {
         inputRef.current?.focus()
     }
 
-
     // Calculate number of suggestions to show based on screen width
     const getVisibleSuggestionsCount = () => {
         if (windowWidth < 640) return 2 // Mobile: show 2
         if (windowWidth < 768) return 3 // Small tablets: show 3
         return 4 // Larger screens: show 4
+    }
+
+    // Render offline state
+    if (!isOnline) {
+        return (
+            <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white">
+                {/* Background elements */}
+                <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute top-10 right-10 md:top-20 md:right-20 w-40 md:w-72 h-40 md:h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '15s' }}></div>
+                    <div className="absolute bottom-20 md:bottom-40 left-5 md:left-10 w-40 md:w-80 h-40 md:h-80 bg-blue-500/10 rounded-full blur-3xl" style={{ animationDuration: '20s' }}></div>
+                </div>
+                
+                <div className="flex flex-col items-center justify-center flex-grow p-4">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-gray-800/50 backdrop-blur-md border border-gray-700/50 rounded-2xl p-6 md:p-8 max-w-md w-full text-center shadow-xl"
+                    >
+                        <div className="relative mx-auto w-16 h-16 md:w-20 md:h-20 mb-4 md:mb-6">
+                            <div className="absolute inset-0 bg-red-500/20 rounded-full animate-ping" style={{ animationDuration: '2s' }}></div>
+                            <div className="relative bg-gradient-to-br from-red-600/30 to-red-800/30 rounded-full w-full h-full flex items-center justify-center border border-red-500/30">
+                                <WifiOff className="h-8 w-8 md:h-10 md:w-10 text-red-400" />
+                            </div>
+                        </div>
+                        
+                        <h2 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-3">You're Offline</h2>
+                        <p className="text-gray-300 mb-4 md:mb-6">AI Coach requires an internet connection to function. Please check your connection and try again.</p>
+                        
+                        <Button 
+                            onClick={() => window.location.reload()}
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95"
+                        >
+                            Retry Connection
+                        </Button>
+                    </motion.div>
+                </div>
+            </div>
+        )
     }
 
     return (

@@ -10,34 +10,38 @@ class aiController extends Controller
   public function index(Request $request)
   {
     $auth = $request->user()->user_data;
-    $vaildtion = $request->validate([
+    $validation = $request->validate([
       'equipment' => ["required", "string"],
       'muscleGroups' => ["required", "array"],
-      'instruction' => ["required", "string"],
+      'instruction' => ["string", "nullable"]
     ]);
-    $brithDate = $auth["birth_date"];
-    $weight = $auth["weight"] . $auth["weight_unit"];
-    $height = $auth["height"] . $auth["height_unit"];
-    $gender = $auth['gender'];
-    $fitnessGoal = $auth['fitness_goal'];
-    $activityLevel = $auth['activity_level'];
+
+    // Set default values if not present in user data
+    $birthDate = $auth["birth_date"] ?? "18";
+    $weight = ($auth["weight"] ?? "70") . ($auth["weight_unit"] ?? "kg");
+    $height = ($auth["height"] ?? "170") . ($auth["height_unit"] ?? "cm");
+    $gender = $auth['gender'] ?? "Not specified";
+    $fitnessGoal = $auth['fitness_goal'] ?? "General fitness";
+    $activityLevel = $auth['activity_level'] ?? "Moderate";
    
-    $muscleGroups = implode(', ', $vaildtion["muscleGroups"]);
-    $promt = <<<Text
+    $muscleGroups = implode(', ', $validation["muscleGroups"]);
+    $specialInstructions = $validation['instruction'] ?? "None";
+
+    $prompt = <<<Text
 You are an elite fitness coach and certified personal trainer with extensive experience in creating customized workout programs. Design a safe, effective, and personalized workout routine optimized for the following parameters.
 
 User Profile:
 - Height: $height
 - Weight: $weight
-- Age: $brithDate (Note: Prioritize age-appropriate exercises and proper form)
+- Age: $birthDate (Note: Prioritize age-appropriate exercises and proper form)
 - Gender: $gender
 - Fitness Goal: $fitnessGoal
 - Activity Level: $activityLevel
 
 Workout Specifications:
-- Available Equipment: {$vaildtion['equipment']}
+- Available Equipment: {$validation['equipment']}
 - Target Muscle Groups: {$muscleGroups}
-- Special Instructions:{$vaildtion['instruction']}
+- Special Instructions: {$specialInstructions}
 
 Critical Requirements:
 1. Design age-appropriate exercises with proper progression
@@ -72,19 +76,19 @@ Provide a structured workout plan in this exact JSON format:
 Return only valid JSON without additional text or formatting. Ensure all exercises are appropriate for a teenage athlete, focusing on foundational movements and proper progression.`
 Text;
     try {
-      $resonse = Http::withHeaders([
+      $response = Http::withHeaders([
         'Authorization' => 'Bearer ' . env('AI_API_KEY'),
         'Content-Type' => 'application/json',
         'Accept' => 'application/json',
       ])->timeout(30)->post('https://api.groq.com/openai/v1/chat/completions', [
         'model' => 'meta-llama/llama-4-scout-17b-16e-instruct',
         'messages' => [
-          ['role' => 'user', 'content' => $promt],
+          ['role' => 'user', 'content' => $prompt],
         ],
         'temperature' => 0.7,
         'max_tokens' => 2000,
       ])->throw()->json();
-      $content = $resonse["choices"][0]["message"]["content"];
+      $content = $response["choices"][0]["message"]["content"];
 
       // Clean up common formatting issues
       $content = trim($content);

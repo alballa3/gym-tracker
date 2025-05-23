@@ -1,5 +1,4 @@
 import { api } from "@/api"
-import { storeTemplate } from "@/capacitor/store";
 import type { Equipment, MuscleGroup, Set } from "@/types/workout"
 type exercises = {
   id: number;
@@ -62,7 +61,6 @@ export const generateWorkoutBasedOnInputs = async (
     caloriesBurned: workout_plan.caloriesBurned,
     is_template: true,
   }
-  storeTemplate(data)
   console.log(data)
   return data
 }

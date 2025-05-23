@@ -12,10 +12,10 @@ interface PreviousWorkoutDataProps {
 
 export function PreviousWorkoutData({ previousData, currentSets }: PreviousWorkoutDataProps) {
   // Helper function to format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date)
-  }
+  // const formatDate = (dateString: string) => {
+  //   const date = new Date(dateString)
+  //   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date)
+  // }
 
   // Helper function to calculate weight difference
   const getWeightDifference = (current: number, previous: number) => {
@@ -30,7 +30,7 @@ export function PreviousWorkoutData({ previousData, currentSets }: PreviousWorko
     <div className="bg-gradient-to-r from-gray-800/60 to-gray-900/60 rounded-xl p-3 border border-gray-700/30">
       <div className="flex items-center gap-2 mb-2">
         <History className="h-4 w-4 text-cyan-300" />
-        <Label className="text-white text-sm">Last Workout ({formatDate(previousData.date)})</Label>
+        <Label className="text-white text-sm">Last Workout ({previousData.date})</Label>
       </div>
       <div className="space-y-1.5">
         {previousData.sets.map((prevSet, idx) => {

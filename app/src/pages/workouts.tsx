@@ -29,6 +29,7 @@ import {
   Zap,
 } from "lucide-react"
 import { api } from "@/api"
+import { getAllWorkouts } from "@/capacitor/store"
 
 export default function AllWorkoutsPage() {
   const [workouts, setWorkouts] = useState<HistoryWorkout[]>([])
@@ -51,14 +52,17 @@ export default function AllWorkoutsPage() {
 
   // Load workout data
   useEffect(() => {
-    const timer = setTimeout(async() => {
-      const client = await api()
-      const res = await client.get("/workouts")
-      let workoutData = res.data
-      setWorkouts(workoutData)
-
-      
-   
+    const handle = async () => {
+      try {
+        const client = await api()
+        const res = await client.get("/workouts")
+        let workoutData = res.data
+        setWorkouts(workoutData)
+      } catch (error) {
+        console.log(error)
+        const workouts: any = await getAllWorkouts()
+        setWorkouts(workouts)
+      }
       // Calculate stats
       const total = workouts.length
       const timer = workouts.reduce((acc, workout) => acc + workout.timer, 0)
@@ -75,9 +79,8 @@ export default function AllWorkoutsPage() {
       setTotalVolume(volume || 0)
 
       setIsLoading(false)
-    }, 800)
-
-    return () => clearTimeout(timer)
+    }
+    handle()
   }, [])
 
   // Count active filters
@@ -92,7 +95,7 @@ export default function AllWorkoutsPage() {
   useEffect(() => {
     let result = [...workouts]
 
-    
+
 
     // Apply search filter
     if (searchQuery) {
@@ -118,7 +121,7 @@ export default function AllWorkoutsPage() {
         case "timer":
           comparison = a.timer - b.timer
           break
-       
+
       }
 
       return sortOrder === "asc" ? comparison : -comparison
@@ -376,7 +379,7 @@ export default function AllWorkoutsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredWorkouts.map((workout, index) => {
                     // Calculate completion percentage
-                    {console.log(workout)}
+                    { console.log(workout) }
                     const completionPercentage = Math.round(((workout.completedSets ?? 0) / (workout.totalSets ?? 1)) * 100)
 
                     // Determine if this workout has any personal records
@@ -402,7 +405,11 @@ export default function AllWorkoutsPage() {
                               </h3>
                               <div className="flex items-center text-gray-400 text-sm mt-1">
                                 <Calendar className="h-3.5 w-3.5 mr-1.5" />
-                                <span>{moment(workout.created_at).fromNow()}</span>
+                                <span>
+                                  {moment(Number(workout.created_at)).isValid()
+                                    ? moment(Number(workout.created_at)).fromNow()
+                                    : 'Invalid date'}
+                                </span>
                               </div>
                             </div>
 
@@ -673,7 +680,7 @@ export default function AllWorkoutsPage() {
             <DialogHeader>
               <DialogTitle className="text-xl font-bold flex items-center gap-2">
                 {selectedWorkout.name}
-                
+
               </DialogTitle>
             </DialogHeader>
             <ScrollArea className="max-h-[calc(90vh-120px)]">
@@ -683,7 +690,7 @@ export default function AllWorkoutsPage() {
         </Dialog>
       )}
 
-      <MobileNavigation activeTab={"workouts"}  />
+      <MobileNavigation activeTab={"workouts"} />
     </div>
   )
 }

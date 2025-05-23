@@ -25,7 +25,7 @@ export function WorkoutTemplatesGrid({ templates, templateColors }: WorkoutTempl
     }
 
     const handleStartWorkout = (template: WorkoutFormState) => {
-        navigate(`/workout/${template.id}`)  
+        navigate(`/workout/${template.name}`)  
     }
 
     return (
@@ -59,6 +59,7 @@ export function WorkoutTemplatesGrid({ templates, templateColors }: WorkoutTempl
                             template={template}
                             index={index}
                             templateColors={templateColors}
+                        
                             onViewDetails={() => handleViewDetails(template)}
                             onStartWorkout={() => handleStartWorkout(template)}
                         />
@@ -69,7 +70,7 @@ export function WorkoutTemplatesGrid({ templates, templateColors }: WorkoutTempl
                     title="No Workout Templates"
                     description="Create your first workout template to get started"
                     buttonText="Create Template"
-                    buttonLink="/create-template"
+                    buttonLink="/create"
                 />
             )}
 

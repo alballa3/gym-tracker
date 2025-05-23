@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { AppHeader } from "@/components/layout/app-header"
 import { cn } from "@/lib/utils"
 import { WorkoutGeneratorForm } from "@/components/generate/workout-generator-form"
@@ -19,6 +19,26 @@ export default function GenerateWorkoutPage() {
   const [generationStep, setGenerationStep] = useState("")
   const [generationError, setGenerationError] = useState<string | null>(null)
   const [showContinueButton, setShowContinueButton] = useState(false)
+  const [isOnline, setIsOnline] = useState(true)
+
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+
+    // Set initial state
+    setIsOnline(navigator.onLine)
+
+    // Add event listeners
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    // Clean up
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   const handleTabChange = useCallback(
     (tab: "customize" | "generated") => {
@@ -49,13 +69,18 @@ export default function GenerateWorkoutPage() {
       selectedEquipment: Equipment[],
       selectedMuscleGroups: MuscleGroup[],
     ) => {
+      // Check for internet connection before starting
+      if (!navigator.onLine) {
+        setGenerationError("No internet connection. Please connect to the internet and try again.")
+        return
+      }
+
       setIsGenerating(true)
       setGenerationProgress(0)
       setGenerationStep("Analyzing your preferences...")
       setGenerationError(null)
 
       try {
-        // // Simulate AI processing with progress updates
         setGenerationProgress(15)
         setGenerationStep("Selecting optimal exercises...")
 
@@ -67,24 +92,28 @@ export default function GenerateWorkoutPage() {
 
         setGenerationProgress(85)
 
+        // Generate workout based on inputs
+        const workout = await generateWorkoutBasedOnInputs(description, selectedEquipment, selectedMuscleGroups)
+
         setGenerationProgress(100)
         setGenerationStep("Workout generated successfully!")
-
-        // Generate workout based on inputs
-        const workout =await generateWorkoutBasedOnInputs(description,  selectedEquipment, selectedMuscleGroups)
         setGeneratedWorkout(workout as unknown as GeneratedWorkout)
-
-        // Wait for progress bar to complete
 
         // Show continue button
         setShowContinueButton(true)
       } catch (error) {
         console.error("Error generating workout:", error)
-        setGenerationError("Failed to generate workout. Please try again.")
+
+        // Check if error is due to network connectivity
+        if (!navigator.onLine) {
+          setGenerationError("Lost internet connection. Please reconnect and try again.")
+        } else {
+          setGenerationError("Failed to generate workout. Please try again.")
+        }
         setIsGenerating(false)
       }
     },
-    [],
+    [isOnline],
   )
 
   return (
@@ -92,6 +121,13 @@ export default function GenerateWorkoutPage() {
       {/* Animated background elements */}
 
       <AppHeader />
+
+      {/* Offline warning banner */}
+      {!isOnline && (
+        <div className="bg-red-500/80 text-white py-2 px-4 text-center font-medium sticky top-0 z-50 backdrop-blur-sm">
+          You are currently offline. Some features may not work until you reconnect to the internet.
+        </div>
+      )}
 
       <main className="flex-1 p-4 md:p-6 pb-20 relative z-10">
         {/* Animated background elements - positioned to cover the entire page */}
@@ -159,7 +195,6 @@ export default function GenerateWorkoutPage() {
                 onContinue={() => handleTabChange("generated")}
               />
             </div>
-
             <div
               className={cn(
                 "absolute w-full transition-all duration-300 ease-in-out",
@@ -173,11 +208,6 @@ export default function GenerateWorkoutPage() {
                   onBack={() => handleTabChange("customize")}
                   onRegenerate={() => {
                     handleTabChange("customize")
-                    // Wait for animation to complete before focusing
-                    setTimeout(() => {
-                      const textarea = document.querySelector("textarea")
-                      if (textarea) textarea.focus()
-                    }, 600)
                   }}
                 />
               )}
@@ -185,8 +215,6 @@ export default function GenerateWorkoutPage() {
           </div>
         </div>
       </main>
-
-      
     </div>
   )
 }

@@ -84,22 +84,15 @@ export function ExerciseSetRow({
             <Input
               type="number"
               inputMode="decimal"
-              value={weight.toString() == '0' ? '' : weight}
+              value={weight === 1 ? '' : weight}
               onChange={(e) => {
-                if (e.target.value === '') {
-                  onWeightChange(0);
-                  return;
-                }
-                const value = parseFloat(e.target.value);
-                if (!isNaN(value)) {
-                  onWeightChange(Math.max(0, value));
-                }
+                onWeightChange(Number(e.target.value))
               }}
               onFocus={() => setHasFocus(true)}
               onBlur={() => setHasFocus(false)}
               step="0.5"
               min="0"
-              placeholder="0"
+              placeholder={weight.toLocaleString()}
               className="bg-gray-800/70 border-gray-700/50 focus:border-cyan-500/80 text-white h-8 sm:h-10 pl-6 sm:pl-7 pr-5 sm:pr-6 text-sm rounded-lg transition-all"
             />
             <span className="absolute left-2 sm:left-2.5 text-cyan-400 text-xs font-medium">kg</span>
@@ -109,16 +102,23 @@ export function ExerciseSetRow({
               <AnimatePresence>
                 {weightChange !== 0 && (
                   <motion.div
-                    className={`absolute right-1.5 sm:right-2 flex items-center gap-0.5 text-xs font-medium
-                      ${weightChange > 0 ? "text-green-400" : "text-amber-400"}`}
+                    className={`absolute right-1.5 sm:right-2 flex items-center gap-0.5 text-xs font-medium ${
+                      weightChange > 0 ? "text-green-400" : "text-amber-400"
+                    }`}
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                   >
                     {weightChange > 0 ? (
-                      <>+{weightChange}<ChevronUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" /></>
+                      <>
+                        +{weightChange.toFixed(2)}
+                        <ChevronUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      </>
                     ) : (
-                      <>{weightChange}<ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3" /></>
+                      <>
+                        {weightChange.toFixed(2)}
+                        <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      </>
                     )}
                   </motion.div>
                 )}

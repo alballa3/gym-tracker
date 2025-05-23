@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, Dumbbell, User } from "lucide-react"
+import { Home, Dumbbell, User, Settings2 } from "lucide-react"
 import React, { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router"
 interface MobileNavigationProps {
@@ -50,6 +50,13 @@ export function MobileNavigation({ activeTab: propActiveTab }: MobileNavigationP
                     />
                     <NavItem
                         icon={<User />}
+                        label="Users"
+                        to="/users"
+                        isActive={activeTab === "users"}
+                        onClick={() => setActiveTab("users")}
+                    />
+                    <NavItem
+                        icon={<Settings2 />}
                         label="Profile"
                         to="/profile"
                         isActive={activeTab === "profile"}

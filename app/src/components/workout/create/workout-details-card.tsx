@@ -16,8 +16,8 @@ interface WorkoutDetailsCardProps {
   setName: (name: string) => void
   description: string
   setDescription: (description: string) => void
-  saveAsTemplate: boolean
-  setSaveAsTemplate: (save: boolean) => void
+  is_template: boolean
+  setis_template: (save: boolean) => void
   state?: any // Make state optional
   startTime?: Date // Optional start time for the timer
 
@@ -155,8 +155,8 @@ export function WorkoutDetailsCard({
           <div className="flex-1">
             <Switch
               id="save-template"
-              checked={saveAsTemplate}
-              onCheckedChange={setSaveAsTemplate}
+              checked={is_template}
+              onCheckedChange={setis_template}
               className="data-[state=checked]:bg-cyan-500"
             />
             <Label htmlFor="save-template" className="text-white ml-2">
@@ -164,7 +164,7 @@ export function WorkoutDetailsCard({
             </Label>
           </div>
           <div className="text-xs text-gray-400 italic">
-            {saveAsTemplate ? "Will be saved for future use" : "One-time workout"}
+            {is_template ? "Will be saved for future use" : "One-time workout"}
           </div>
         </div> */}
         {state && state.exercises && state.exercises.length > 0 && (

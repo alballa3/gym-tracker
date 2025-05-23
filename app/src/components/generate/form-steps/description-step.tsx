@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Brain, ChevronRight, Clock, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
 
 interface DescriptionStepProps {
   description: string
@@ -16,12 +17,10 @@ interface DescriptionStepProps {
 
 export function DescriptionStep({ description, setDescription, duration, setDuration, onNext }: DescriptionStepProps) {
   const [charCount, setCharCount] = useState(0)
-  const [isNextDisabled, setIsNextDisabled] = useState(true)
 
-  // Update character count and validate
+  // Update character count
   useEffect(() => {
     setCharCount(description.length)
-    setIsNextDisabled(description.trim().length < 10)
   }, [description])
 
   const container = {
@@ -47,6 +46,9 @@ export function DescriptionStep({ description, setDescription, duration, setDura
             <Brain className="h-5 w-5" />
           </div>
           <h3 className="font-medium text-lg">Describe Your Ideal Workout</h3>
+          <Badge variant="outline" className="text-xs font-normal bg-zinc-800/50 text-zinc-400 border-zinc-700">
+            Optional
+          </Badge>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
@@ -55,7 +57,7 @@ export function DescriptionStep({ description, setDescription, duration, setDura
               <TooltipContent>
                 <p className="max-w-xs text-sm">
                   Describe your workout goals, preferences, and any specific focus areas. The more details you provide,
-                  the better your workout will be.
+                  the better your workout will be. This field is optional, but recommended for personalized results.
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -77,7 +79,7 @@ export function DescriptionStep({ description, setDescription, duration, setDura
         {description.trim().length > 0 && description.trim().length < 10 && (
           <p className="text-amber-400 text-sm flex items-center gap-1.5">
             <Info className="h-4 w-4" />
-            Please provide a more detailed description for better results
+            Consider providing a more detailed description for better results
           </p>
         )}
       </motion.div>
@@ -89,6 +91,9 @@ export function DescriptionStep({ description, setDescription, duration, setDura
             <Clock className="h-5 w-5" />
           </div>
           <h3 className="font-medium text-lg">Workout Duration</h3>
+          <Badge variant="outline" className="text-xs font-normal bg-zinc-800/50 text-zinc-400 border-zinc-700">
+            Optional
+          </Badge>
         </div>
         <div className="space-y-4">
           <div className="flex items-center">
@@ -131,13 +136,13 @@ export function DescriptionStep({ description, setDescription, duration, setDura
         </div>
       </motion.div>
 
-      <motion.div variants={item} className="flex justify-end mt-8">
+      <motion.div variants={item} className="flex justify-between mt-8">
+        <p className="text-zinc-400 text-sm italic">
+          All fields are optional. You can proceed without filling them.
+        </p>
         <Button
           onClick={onNext}
-          disabled={isNextDisabled}
-          className={`bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-medium py-2.5 px-6 rounded-xl shadow-lg transition-all duration-300 flex items-center gap-2 ${
-            isNextDisabled ? "opacity-50 cursor-not-allowed" : "shadow-violet-900/20"
-          }`}
+          className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-medium py-2.5 px-6 rounded-xl shadow-lg transition-all duration-300 flex items-center gap-2 shadow-violet-900/20"
         >
           Next <ChevronRight className="h-4 w-4" />
         </Button>

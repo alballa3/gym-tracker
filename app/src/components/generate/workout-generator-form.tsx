@@ -56,7 +56,7 @@ export function WorkoutGeneratorForm({
       equipment.push(customEquipment as Equipment)
     }
 
-    onGenerate(description, duration, equipment, selectedMuscleGroups)
+    onGenerate(description.length == 0 ? "simple workout" : description, duration, equipment, selectedMuscleGroups)
   }
 
   const nextStep = () => {
@@ -99,8 +99,8 @@ export function WorkoutGeneratorForm({
           {/* Progress indicator */}
           <StepIndicator currentStep={formStep} totalSteps={3} />
 
-          {/* Step 1: Description */}
           {formStep === 1 && (
+
             <DescriptionStep
               description={description}
               setDescription={setDescription}
@@ -132,8 +132,10 @@ export function WorkoutGeneratorForm({
               isGenerating={isGenerating}
             />
           )}
+
         </div>
       )}
+      
     </Card>
   )
 }

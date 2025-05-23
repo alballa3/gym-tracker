@@ -43,7 +43,7 @@ const initialState: WorkoutFormState = {
   id: crypto.randomUUID(),
   name: "",
   description: "",
-  saveAsTemplate: true,
+  is_template: true,
   timer: Date.now(),
   exercises: [],
   created_at: Date.now().toString(),
@@ -60,7 +60,7 @@ function workoutReducer(state: WorkoutFormState, action: WorkoutAction): Workout
     case "SET_DESCRIPTION":
       return { ...state, description: action.payload }
     case "SET_SAVE_AS_TEMPLATE":
-      return { ...state, saveAsTemplate: action.payload }
+      return { ...state, is_template: action.payload }
     case "ADD_EXERCISE": {
       const newId = state.exercises.length > 0 ? Math.max(...state.exercises.map((ex) => ex.id)) + 1 : 1
       return {
@@ -228,7 +228,7 @@ function workoutReducer(state: WorkoutFormState, action: WorkoutAction): Workout
         name: workout.name,
         description: workout.description,
         exercises: workout.exercises,
-        saveAsTemplate: workout.saveAsTemplate,
+        is_template: workout.is_template,
         timer: workout.timer,
       }
     }

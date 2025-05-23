@@ -33,7 +33,7 @@ export type WorkoutFormState = {
   id: string
   name: string
   description: string
-  saveAsTemplate: boolean
+  is_template: boolean
   timer:Number
   exercises: Exercise[]
   created_at: string

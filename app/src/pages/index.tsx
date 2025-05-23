@@ -5,44 +5,77 @@ import { AppHeader } from "@/components/layout/app-header"
 import { WorkoutTemplatesGrid } from "@/components/workout/index/workout-templates-grid"
 import { NewWorkoutCard } from "@/components/workout/index/new-workout-card"
 import { MobileNavigation } from "@/components/layout/mobile-navigation"
-import { LastWorkoutSection } from "@/components/workout/index/last-workout-section"
 import { WorkoutFormState } from "@/types/workout"
 import { api } from "@/api"
+import { getAllTemplate } from "@/capacitor/store"
+import { toast, Toaster } from "sonner"
 
 export default function HomePage() {
     const [templates, setTemplates] = useState<WorkoutFormState[]>([])
+    const [isLoading, setIsLoading] = useState<boolean>(true); // Add isLoading state
     // const [lastWorkout, setLastWorkout] = useState<WorkoutFormState | null>(null)
     useEffect(() => {
         const handle = async () => {
-      
-            const client = await api()
-         //    const workouts = await client.get(`/workouts/1`)
-            const templates = await client.get("/template")
-            setTemplates(templates.data)
-        //    try {
-        //    } catch (error) {
-            
-        //    }
-            // setLastWorkout(workouts.data) // Assuming the last workout is the first elemen
-            // setTemplates(templates.data)
-            // const validWorkouts = workouts.filter(w => w !== null);
-            // setTemplates(validWorkouts);
+            setIsLoading(true); // Set loading to true when fetching starts
+            try {
+                const client = await api()
+                const templatesData: WorkoutFormState[] = await (await client.get("/template")).data
+                setTemplates(templatesData)
+
+            } catch (error) {
+                console.error(error)
+                toast.error("Failed to fetch workouts, but local data is loaded.");
+                const localTemplates = await getAllTemplate()
+                setTemplates(localTemplates)
+            } finally {
+                setIsLoading(false); // Set loading to false after fetching (success or error)
+            }
         }
         handle()
     }, [])
-    // For demo purposes, you can toggle this to show/hide the last workout
-    const lastWorkout = {
-        title: "Upper Body Strength",
-        date: "Today, 9:30 AM",
-        duration: "45 min",
-        exerciseCount: 8,
-        volume: "4,500 kg",
+
+    // Loading State UI
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-b from-gray-950 to-gray-900 text-white flex flex-col items-center justify-center">
+                {/* Background particles/effects (optional for loading screen) */}
+                <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-20 right-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-40 left-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
+                </div>
+
+                <div className="relative text-center">
+                    <svg
+                        className="animate-spin h-12 w-12 text-blue-400 mx-auto mb-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
+                        <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                        ></circle>
+                        <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                    </svg>
+                    <h2 className="text-2xl font-semibold text-white mb-2">Loading Workouts...</h2>
+                    <p className="text-gray-400">Please wait a moment.</p>
+                </div>
+            </div>
+        );
     }
-    // For demo purposes, you can set this to an empty array to show the empty state
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-950 to-gray-900 text-white">
             {/* Background particles/effects */}
+            <Toaster />
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-40 left-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
@@ -74,7 +107,7 @@ export default function HomePage() {
                     ) : (
                         <>
                             {/* Last Workout Section */}
-                            <LastWorkoutSection lastWorkout={lastWorkout} />
+                            {/* <LastWorkoutSection lastWorkout={lastWorkout} /> */}
 
                             {/* Workout Templates Section */}
                             <WorkoutTemplatesGrid templates={templates} templateColors={templateColors} />
@@ -89,7 +122,7 @@ export default function HomePage() {
             </main>
 
             {/* Mobile Navigation */}
-            <MobileNavigation activeTab={'home'}  />
+            <MobileNavigation activeTab={'home'} />
         </div>
     )
 }

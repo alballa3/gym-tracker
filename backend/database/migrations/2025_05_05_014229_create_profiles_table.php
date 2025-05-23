@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('profile', function (Blueprint $table) {
             $table->id();
             $table->string('bio')->default('am an cool guy who like to workout :)');
-            $table->integer('followers')->default(0);
-            $table->integer('following')->default(0);
             $table->json('settings')->default('{
             "profileVisibility": "friends",
             "settings": {

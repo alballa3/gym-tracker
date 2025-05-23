@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\aiController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WorkoutController;
 use App\Models\exercise;
@@ -26,7 +27,6 @@ Route::controller(WorkoutController::class)->group(function () {
     Route::post('/workouts', 'storeWorkout')->middleware('auth:sanctum');
     Route::post('/template', 'storeTemplate')->middleware('auth:sanctum');
     Route::get("/exercises", "getExercises");
-
 });
 Route::controller(aiController::class)->group(function () {
     Route::post('/ai/generate', 'index')->middleware('auth:sanctum');
@@ -38,4 +38,11 @@ Route::controller(ProfileController::class)->group(function () {
     Route::put('/profile/bio', 'updateBio')->middleware('auth:sanctum');
     Route::put('/profile/name', 'updateName')->middleware('auth:sanctum');
     Route::get('/profile/search', 'search');
+    Route::get('/profile/{id}', 'getUser');
+});
+Route::controller(FollowController::class)->group(function () {
+    Route::post('/follow/{id}', 'follow')->middleware('auth:sanctum');
+    Route::post('/unfollow/{id}', 'unfollow')->middleware('auth:sanctum');
+    // Route::get('/followers', 'getFollowers')->middleware('auth:sanctum');
+    // Route::get('/following', 'getFollowing')->middleware('auth:sanctum');
 });

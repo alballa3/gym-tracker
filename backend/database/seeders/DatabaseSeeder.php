@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\exercise;
+use App\Models\profile;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -32,6 +33,29 @@ class DatabaseSeeder extends Seeder
                 'exercise_id' => $item['id'] ?? 0,
             ];
         }, $data);
-         exercise::insert($new_data);
+        exercise::insert($new_data);
+        $admin = User::create([
+            'name' => 'admin',
+            'email' => 'admin@gmail.com',
+            'password' => 'admin',
+            'user_data' => '{
+                "height": "192",
+                "height_unit": "cm",
+                "weight": "130",
+                "weight_unit": "kg",
+                "birth_date": "28/8/2002",
+                "gender": "Male",
+                "fitness_goal": "Muscle Gain",
+                "activity_level": "Active (exercise 6-7 days/week)"
+                }',
+        ]);
+        profile::create([
+            'user_id' => $admin->id,
+        ]);
+        $data = User::factory(250)->create();
+        $ids = $data->pluck('id')->toArray();
+        profile::factory(250)->create([
+            'user_id' => $ids,
+        ]);
     }
 }

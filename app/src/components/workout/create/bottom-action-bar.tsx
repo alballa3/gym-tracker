@@ -17,11 +17,11 @@ import {
 import { useWorkout } from "@/contexts/workout-context"
 
 interface BottomActionBarProps {
-  saveAsTemplate: boolean
+  is_template: boolean
   onSave: () => void
 }
 
-export function BottomActionBar({ saveAsTemplate, onSave }: BottomActionBarProps) {
+export function BottomActionBar({ is_template, onSave }: BottomActionBarProps) {
   const { state } = useWorkout()
 
   return (
@@ -66,13 +66,13 @@ export function BottomActionBar({ saveAsTemplate, onSave }: BottomActionBarProps
               <Button
                 className={`
                   flex-1 rounded-2xl shadow-xl border-0 transition-all duration-300 hover:scale-102 hover:shadow-2xl
-                  ${saveAsTemplate
+                  ${is_template
                     ? 'bg-gradient-to-br from-violet-500 via-indigo-500 to-blue-600 hover:from-violet-600 hover:via-indigo-600 hover:to-blue-700 shadow-indigo-900/40'
                     : 'bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600 hover:from-emerald-600 hover:via-green-600 hover:to-teal-700 shadow-emerald-900/40'
                   }
                 `}
               >
-                {saveAsTemplate ? (
+                {is_template ? (
                   <div className="flex items-center">
                     <Save className="h-4 w-4 mr-2 animate-pulse" />
                     <span className="font-medium">Save Template</span>
@@ -88,10 +88,10 @@ export function BottomActionBar({ saveAsTemplate, onSave }: BottomActionBarProps
             <AlertDialogContent className="bg-gray-900/98 backdrop-blur-xl border border-gray-800/60 shadow-2xl rounded-3xl">
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-gray-100 text-xl">
-                  {saveAsTemplate ? "Save as Template?" : "Finish Workout?"}
+                  {is_template ? "Save as Template?" : "Finish Workout?"}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-gray-400">
-                  {saveAsTemplate
+                  {is_template
                     ? "This will save your current workout as a template for future use."
                     : "This will save and complete your current workout session."
                   }
@@ -104,12 +104,12 @@ export function BottomActionBar({ saveAsTemplate, onSave }: BottomActionBarProps
                 <AlertDialogAction
                   onClick={onSave}
                   className={`text-gray-100 rounded-xl transition-all duration-300 hover:shadow-lg ${
-                    saveAsTemplate
+                    is_template
                       ? "bg-indigo-600/90 hover:bg-indigo-700/90"
                       : "bg-emerald-600/90 hover:bg-emerald-700/90"
                   }`}
                 >
-                  {saveAsTemplate ? "Save Template" : "Complete Workout"}
+                  {is_template ? "Save Template" : "Complete Workout"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
